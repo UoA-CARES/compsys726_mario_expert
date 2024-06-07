@@ -56,10 +56,12 @@ def main():
 
             results.append(result)
 
-    sorted(results, key=cmp_to_key(compare_performance))
+    results = sorted(results, key=cmp_to_key(compare_performance))
 
     for i, result in enumerate(results):
-        logging.info(f"Rank {i + 1}: {result['upi']}")
+        logging.info(
+            f"Rank {i + 1}: {result['upi']} - World: {result['world']} Stage: {result['stage']} Score: {result['score']}"
+        )
 
 
 if __name__ == "__main__":

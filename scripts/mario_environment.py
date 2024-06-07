@@ -83,7 +83,7 @@ class MarioEnvironment(PyboyEnvironment):
 
         self.pyboy.send_input(self.release_button[action])
 
-    def game_state(self) -> dict[str, int]:
+    def game_state(self) -> dict[str, any]:
         """
         This is an example of how you could extract the game state
 
