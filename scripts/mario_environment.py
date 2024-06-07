@@ -15,78 +15,7 @@ import numpy as np
 from pyboy import PyBoy
 from pyboy.utils import WindowEvent
 
-
-class PyboyEnvironment(metaclass=ABCMeta):
-    """
-    This is a base class for the PyboyEnvironment. It is an abstract class that should be subclassed
-
-    It is NOT recommended that you modify this class - but you can if you want to
-    """
-
-    def __init__(
-        self,
-        task: str,
-        rom_name: str,
-        init_name: str,
-        act_freq: int,
-        emulation_speed: int = 0,
-        headless: bool = False,
-    ) -> None:
-        self.task = task
-
-        path = f"{Path(__file__).parent.parent}/roms"
-
-        self.rom_path = f"{path}/{self.task}/{rom_name}"
-        self.init_path = f"{path}/{self.task}/{init_name}"
-
-        self.act_freq = act_freq
-
-        head = "null" if headless else "SDL2"
-        self.pyboy = PyBoy(
-            self.rom_path,
-            window=head,
-        )
-
-        self.screen = self.pyboy.screen
-
-        self.pyboy.set_emulation_speed(emulation_speed)
-
-        self.reset()
-
-    def grab_frame(self, height: int = 240, width: int = 300) -> np.ndarray:
-        frame = np.array(self.screen.image)
-        frame = cv2.resize(frame, (width, height))
-        # Convert to BGR for use with OpenCV
-        frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
-        return frame
-
-    def reset(self) -> np.ndarray:
-        with open(self.init_path, "rb") as f:
-            self.pyboy.load_state(f)
-
-    def game_area(self) -> np.ndarray:
-        raise NotImplementedError("Implement in subclass")
-
-    def _read_m(self, addr: int) -> int:
-        return self.pyboy.memory[addr]
-
-    def _read_bit(self, addr: int, bit: int) -> bool:
-        # add padding so zero will read '0b100000000' instead of '0b0'
-        return bin(256 + self._read_m(addr))[-bit - 1] == "1"
-
-    # built-in since python 3.10
-    def _bit_count(self, bits: int) -> int:
-        return bin(bits).count("1")
-
-    def _read_triple(self, start_add: int) -> int:
-        return (
-            256 * 256 * self._read_m(start_add)
-            + 256 * self._read_m(start_add + 1)
-            + self._read_m(start_add + 2)
-        )
-
-    def _read_bcd(self, num: int) -> int:
-        return 10 * ((num >> 4) & 0x0F) + (num & 0x0F)
+from pyboy_environment import PyboyEnvironment
 
 
 class MarioEnvironment(PyboyEnvironment):
@@ -109,10 +38,11 @@ class MarioEnvironment(PyboyEnvironment):
             task="mario",
             rom_name="SuperMarioLand.gb",
             init_name="init.state",
-            act_freq=act_freq,
             emulation_speed=emulation_speed,
             headless=headless,
         )
+
+        self.act_freq = act_freq
 
         # Example of valid actions based purely on the buttons you can press
         valid_actions: list[WindowEvent] = [
@@ -140,10 +70,12 @@ class MarioEnvironment(PyboyEnvironment):
         """
         This is a very basic example of how this function could be implemented
 
-        As part of this assignment your job is to potentially modify this function to better suit your needs
+        As part of this assignment your job is to modify this function to better suit your needs
+
+        You can change the action type to whatever you want or need just remember the base control of the game is pushing buttons
         """
 
-        # Toggles the buttons being on or off
+        # Simply toggles the buttons being on or off for a duration of act_freq
         self.pyboy.send_input(self.valid_actions[action])
 
         for _ in range(self.act_freq):
@@ -152,9 +84,11 @@ class MarioEnvironment(PyboyEnvironment):
         self.pyboy.send_input(self.release_button[action])
 
     def game_state(self) -> dict[str, int]:
-        # This is an example of how you could extract the game state
+        """
+        This is an example of how you could extract the game state
 
-        # You can add to this list for your purposes but do NOT remove any of these
+        You can add to this list for your purposes but do NOT remove any of these
+        """
         return {
             "lives": self.get_lives(),  # DO NOT REMOVE
             "score": self.get_score(),  # DO NOT REMOVE
@@ -169,7 +103,9 @@ class MarioEnvironment(PyboyEnvironment):
             # Add more here if you wish
         }
 
-    # Useful functions to extract the game state - you can add more if you want
+    ############################################################################################################
+    # Useful functions to extract the game state - you can add more if you want but do NOT edit these functions#
+    ############################################################################################################
     def game_area(self) -> np.ndarray:
         mario = self.pyboy.game_wrapper
         mario.game_area_mapping(mario.mapping_compressed, 0)
