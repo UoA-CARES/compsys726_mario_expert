@@ -1,19 +1,13 @@
 """
-The link below has all the ROM memory data for Super Mario Land. 
-It is used to extract the game state for the MarioEnvironment class.
-
-https://datacrystal.tcrf.net/wiki/Super_Mario_Land/RAM_map
-
-https://www.thegameisafootarcade.com/wp-content/uploads/2017/04/Super-Mario-Land-Game-Manual.pdf
+DO NOT EDIT THIS CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+DO NOT EDIT THIS CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+DO NOT EDIT THIS CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+DO NOT EDIT THIS CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+DO NOT EDIT THIS CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+DO NOT EDIT THIS CLASS!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 """
 
-from abc import ABCMeta
-from pathlib import Path
-
-import cv2
 import numpy as np
-from pyboy import PyBoy
-from pyboy.utils import WindowEvent
 
 from pyboy_environment import PyboyEnvironment
 
@@ -21,8 +15,6 @@ from pyboy_environment import PyboyEnvironment
 class MarioEnvironment(PyboyEnvironment):
     """
     This is a base class for the MarioEnvironment.
-
-    It is recommended that you add your own functions to this class to better suit your needs
 
     https://datacrystal.tcrf.net/wiki/Super_Mario_Land/RAM_map
     """
@@ -44,51 +36,7 @@ class MarioEnvironment(PyboyEnvironment):
 
         self.act_freq = act_freq
 
-        # Example of valid actions based purely on the buttons you can press
-        valid_actions: list[WindowEvent] = [
-            WindowEvent.PRESS_ARROW_DOWN,
-            WindowEvent.PRESS_ARROW_LEFT,
-            WindowEvent.PRESS_ARROW_RIGHT,
-            WindowEvent.PRESS_ARROW_UP,
-            WindowEvent.PRESS_BUTTON_A,
-            WindowEvent.PRESS_BUTTON_B,
-        ]
-
-        release_button: list[WindowEvent] = [
-            WindowEvent.RELEASE_ARROW_DOWN,
-            WindowEvent.RELEASE_ARROW_LEFT,
-            WindowEvent.RELEASE_ARROW_RIGHT,
-            WindowEvent.RELEASE_ARROW_UP,
-            WindowEvent.RELEASE_BUTTON_A,
-            WindowEvent.RELEASE_BUTTON_B,
-        ]
-
-        self.valid_actions = valid_actions
-        self.release_button = release_button
-
-    def run_action(self, action: int) -> None:
-        """
-        This is a very basic example of how this function could be implemented
-
-        As part of this assignment your job is to modify this function to better suit your needs
-
-        You can change the action type to whatever you want or need just remember the base control of the game is pushing buttons
-        """
-
-        # Simply toggles the buttons being on or off for a duration of act_freq
-        self.pyboy.send_input(self.valid_actions[action])
-
-        for _ in range(self.act_freq):
-            self.pyboy.tick()
-
-        self.pyboy.send_input(self.release_button[action])
-
     def game_state(self) -> dict[str, any]:
-        """
-        This is an example of how you could extract the game state
-
-        You can add to this list for your purposes but do NOT remove any of these
-        """
         return {
             "lives": self.get_lives(),  # DO NOT REMOVE
             "score": self.get_score(),  # DO NOT REMOVE
@@ -100,11 +48,17 @@ class MarioEnvironment(PyboyEnvironment):
             "dead_timer": self.get_dead_timer(),  # DO NOT REMOVE
             "dead_jump_timer": self.get_dead_jump_timer(),  # DO NOT REMOVE
             "game_over": self.get_game_over(),  # DO NOT REMOVE
-            # Add more here if you wish
         }
 
     ############################################################################################################
-    # Useful functions to extract the game state - you can add more if you want but do NOT edit these functions#
+    # Useful functions to extract the game state - add additional ones in MarioController NOT HERE             #
+    #                                                                                                          #
+    # The link below has all the ROM memory data for Super Mario Land.                                         #
+    # It is used to extract the game state for the MarioEnvironment class.                                     #
+    #                                                                                                          #
+    # https://datacrystal.tcrf.net/wiki/Super_Mario_Land/RAM_map                                               #
+    #                                                                                                          #
+    # https://www.thegameisafootarcade.com/wp-content/uploads/2017/04/Super-Mario-Land-Game-Manual.pdf         #
     ############################################################################################################
     def game_area(self) -> np.ndarray:
         mario = self.pyboy.game_wrapper

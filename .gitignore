@@ -163,3 +163,5 @@ cython_debug/
 
 roms/
 results/
+
+*client_secrets.json

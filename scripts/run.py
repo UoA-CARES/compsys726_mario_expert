@@ -24,19 +24,20 @@ def get_args():
     return parse_args.parse_args()
 
 
-def main():
-    args = get_args()
-
-    upi = args.upi
+def run(upi, headless):
     results_path = f"{Path(__file__).parent.parent}/results/{upi}"
     logging.info(f"Saving data into: {results_path}")
 
     if not os.path.exists(results_path):
         os.makedirs(results_path)
 
-    expert = MarioExpert(results_path=results_path, headless=args.headless)
+    expert = MarioExpert(results_path=results_path, headless=headless)
     expert.play()
 
 
 if __name__ == "__main__":
-    main()
+    args = get_args()
+
+    upi = args.upi
+    headless = args.headless
+    run(upi, headless)
