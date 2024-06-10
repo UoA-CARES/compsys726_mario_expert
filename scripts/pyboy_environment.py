@@ -41,7 +41,7 @@ class PyboyEnvironment(metaclass=ABCMeta):
         self.reset()
 
     def grab_frame(self, height: int = 240, width: int = 300) -> np.ndarray:
-        frame = np.array(self.screen.image)
+        frame = np.array(self.screen.ndarray)
         frame = cv2.resize(frame, (width, height))
         # Convert to BGR for use with OpenCV
         frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)

@@ -1,7 +1,8 @@
 import os
+import subprocess
 from pathlib import Path
 
-import run
+import virtualenv
 from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
@@ -41,6 +42,20 @@ def print_folders(directory, tab=0):
         print_folders(folder, tab=tab + 5)
 
 
+def run_script_venv(upi, requirement_path):
+
+    path = f"{os.path.expanduser('~')}/venv"
+    venv_dir = os.path.join(path, f"{upi}")
+    virtualenv.cli_run([venv_dir])
+
+    python_bin = f"{path}/{upi}/bin/python3"
+
+    command = f". {venv_dir}/bin/activate && pip install -r {requirement_path}/requirements.txt"
+    os.system(command)
+
+    subprocess.Popen([python_bin, "run.py", "--upi", upi, "--headless"])
+
+
 def main():
     gauth = GoogleAuth()
     gauth.LocalWebserverAuth()
@@ -70,10 +85,11 @@ def main():
         file = drive.CreateFile({"id": mario_expert_id})
         file.GetContentFile("mario_expert.py")
 
-        os.system(
-            f"pip3 install -r {requirement_path}/requirements.txt --ignore-installed"
-        )
-        os.system(f"python3 run.py --upi {title} --headless")
+        run_script_venv(title, requirement_path)
+        # os.system(
+        #     f"pip3 install -r {requirement_path}/requirements.txt --ignore-installed"
+        # )
+        # os.system(f"python3 run.py --upi {title} --headless")
 
 
 if __name__ == "__main__":
