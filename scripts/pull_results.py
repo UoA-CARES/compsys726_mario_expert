@@ -65,7 +65,7 @@ def main():
         requirement_path = f"{Path(__file__).parent.parent}"
 
         file = drive.CreateFile({"id": requirements_id})
-        file.GetContentFile(f"{requirement_path}/requirements.py")
+        file.GetContentFile(f"{requirement_path}/requirements.txt")
 
         file = drive.CreateFile({"id": mario_expert_id})
         file.GetContentFile("mario_expert.py")
