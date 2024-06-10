@@ -68,7 +68,7 @@ def main():
         file.GetContentFile(f"{requirement_path}/requirements.py")
 
         file = drive.CreateFile({"id": mario_expert_id})
-        file.GetContentFile("mario-expert.py")
+        file.GetContentFile("mario_expert.py")
 
         os.system(
             f"pip3 install -r {requirement_path}/requirements.py --ignore-installed"
