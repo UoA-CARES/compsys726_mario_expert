@@ -71,7 +71,7 @@ def main():
         file.GetContentFile("mario_expert.py")
 
         os.system(
-            f"pip3 install -r {requirement_path}/requirements.py --ignore-installed"
+            f"pip3 install -r {requirement_path}/requirements.txt --ignore-installed"
         )
         os.system(f"python3 run.py --upi {title} --headless")
 
