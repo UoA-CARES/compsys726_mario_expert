@@ -35,9 +35,11 @@ def run(upi, headless):
     expert.play()
 
 
-if __name__ == "__main__":
+def main():
     args = get_args()
 
-    upi = args.upi
-    headless = args.headless
-    run(upi, headless)
+    run(args.upi, args.headless)
+
+
+if __name__ == "__main__":
+    main()

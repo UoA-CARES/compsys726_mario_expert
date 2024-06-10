@@ -7,14 +7,16 @@ from pydrive2.auth import GoogleAuth
 from pydrive2.drive import GoogleDrive
 
 
-def read_folder(drive, title, id):
+def read_folder(drive, title, file_id):
     folder = {}
 
     folder["title"] = title
     folder["files"] = {}
     folder["folders"] = []
 
-    drive_list = drive.ListFile({"q": f"'{id}' in parents and trashed=false"}).GetList()
+    drive_list = drive.ListFile(
+        {"q": f"'{file_id}' in parents and trashed=false"}
+    ).GetList()
 
     for f in drive_list:
         if f["mimeType"] == "application/vnd.google-apps.folder":
@@ -42,8 +44,7 @@ def print_folders(directory, tab=0):
         print_folders(folder, tab=tab + 5)
 
 
-def run_script_venv(upi, requirement_path):
-
+def run_venv(upi, requirement_path):
     path = f"{os.path.expanduser('~')}/venv"
     venv_dir = os.path.join(path, f"{upi}")
     virtualenv.cli_run([venv_dir])
@@ -53,7 +54,7 @@ def run_script_venv(upi, requirement_path):
     command = f". {venv_dir}/bin/activate && pip install -r {requirement_path}/requirements.txt"
     os.system(command)
 
-    subprocess.Popen([python_bin, "run.py", "--upi", upi, "--headless"])
+    return subprocess.Popen([python_bin, "run.py", "--upi", upi, "--headless"])
 
 
 def main():
@@ -69,9 +70,10 @@ def main():
 
     print_folders(directory)
 
+    sub_processes = {}
     for folders in directory["folders"]:
-        title = folders["title"]
-        print(f"Title: {title}")
+        upi = folders["title"]
+        print(f"Title: {upi}")
 
         files = folders["files"]
         requirements_id = files["requirements.txt"]["id"]
@@ -85,11 +87,12 @@ def main():
         file = drive.CreateFile({"id": mario_expert_id})
         file.GetContentFile("mario_expert.py")
 
-        run_script_venv(title, requirement_path)
-        # os.system(
-        #     f"pip3 install -r {requirement_path}/requirements.txt --ignore-installed"
-        # )
-        # os.system(f"python3 run.py --upi {title} --headless")
+        p = run_venv(upi, requirement_path)
+        sub_processes[upi] = p
+
+    for upi, p in sub_processes.items():
+        exit_code = p.wait()
+        print(f"Exit code: {exit_code} {upi}")
 
 
 if __name__ == "__main__":
