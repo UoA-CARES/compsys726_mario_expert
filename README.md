@@ -95,7 +95,7 @@ This is simply to enable automated competitions between your submissions.
 You are free to modify and expand the classes inside of "mario_expert.py" and add additional features/functions required to implement your agent. This is not best coding practice but it makes the lecturers lives easier. 
 
 ## Mario Manual
-For those too young to remember physical manuals, the link below provides the physical manual with instructions on how to play Super Mario Land. This information will be super useful for developing your expert agent.
+The link below provides the physical manual with instructions on how to play Super Mario Land. This information will be super useful for developing your expert agent. For those too young to remember physical manuals these used to come with the physical cartridge and you couldn't just Google how to play. 
 
 https://www.thegameisafootarcade.com/wp-content/uploads/2017/04/Super-Mario-Land-Game-Manual.pdf
 
