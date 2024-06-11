@@ -15,26 +15,34 @@ The only exception is you are NOT allowed to utilise Machine Learning as that is
 The full details of the assignment marking and expectations of the report are laid out on Canvas: TODO
 
 ## Setup
-Pull this package onto your computer into any directory you desire.
+Pull this package onto your computer - these instructions will default to using a folder called "~/compsys726" but you may pull these package into any directory you desire.
 
 `git clone` the repository into your desired directory on your local machine
 
 ```
+mkdir ~/compsys726
+cd ~/compsys726
 git clone https://github.com/UoA-CARES/compsys726_mario_expert.git 
 ```
 
 To run this package you must first install the required python packages. These packages are the base packages required to run the minimal example, you will most likely need to install additional packages to complete the assignment.
 
-Run `pip3 install -r requirements.txt` in the **root directory** of the package
+Run `pip3 install -r requirements.txt` in the **root directory** of the package.
+
+```
+cd ~/compsys726/compsys726_mario_expert
+pip3 install -r requirements.txt
+```
 
 Pull the mario ROM folder from the link below (University of Auckland emails only) and put into the roms folder in this package.
 
 https://drive.google.com/drive/folders/1L7W6dp5ToohZzRAuZAr3GVX-76twyBnc?usp=sharing 
 
 ## Usage
-To run this package you can simply call "run.py" and pass your UoA assigned upi as an arguement. The initial example agent is a random explorer who will simply randomly select actions to play the game. 
+To run this package you can simply call "run.py" in the scripts folder of the package and pass your UoA assigned upi as an arguement. The initial example agent is a random explorer who will simply randomly select actions to play the game. 
 
 ```
+cd ~/compsys726/compsys726_mario_expert/scripts
 python3 run.py run --upi your_upi
 ```
 
