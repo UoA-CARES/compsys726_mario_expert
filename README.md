@@ -1,14 +1,12 @@
-# compsys726_mario_expert
-The objective of this assignment is to implement your version of "mario_expert.py" to play the game of Super Mario from the original GameBoy.
-
+# Assignment Instructions
 This document provides all the instructions to setup and run the base random agent example and then how to create your own expert agent.
 
 <p align="center">
     <img src="./media/mario-land.png" style="width: 40%;" />
 </p>
 
-# Assignment Instructions
-The objective is to develop an expert agent capable of playing Super Mario into "mario_expert.py".
+## Objective
+The objective of this assignment is to implement your version of "mario_expert.py" to play the game of Super Mario from the original GameBoy.
 The agent must be developed as an expert system - you are free to choose how you implement the expert, using any methodology or resources online that you wish.
 The only exception is you are NOT allowed to utilise Machine Learning as that is not an expert system - https://en.wikipedia.org/wiki/Expert_system.
 
