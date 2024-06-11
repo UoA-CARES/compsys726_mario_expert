@@ -69,9 +69,25 @@ You will see the game window open up and mario moving around randomly similar to
     <img src="./media/mario.gif"/>
 </p>
 
-The results of the agent playing the game will be saved into ***results/your_upi*** - this will record the final game stats and a video of the agent playing the game. 
+The results of the agent playing the game will be saved into ***results/your_upi/results.json*** - this will record the final game stats and a video of the agent playing the game as below: 
 
-## Implementation Requirements
+```
+results.json
+{
+    "lives": 0,
+    "score": 1950,
+    "coins": 5,
+    "stage": 1,
+    "world": 1,
+    "x_position": 309,
+    "time": 374,
+    "dead_timer": 0,
+    "dead_jump_timer": 38,
+    "game_over": true,
+}
+```
+
+## Implementing your Expert Agent
 The agent you implement must be entirely developed within the ***scripts/mario_expert.py*** file. 
 NO other file is to be edited - the automated competition system will only use your ***mario_expert.py*** file. 
 This is simply to enable automated competitions between your submissions.
