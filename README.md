@@ -34,9 +34,18 @@ cd ~/compsys726/compsys726_mario_expert
 pip3 install -r requirements.txt
 ```
 
-Pull the mario ROM folder from the link below ***(University of Auckland emails only)*** and put into the roms folder in this package.
+Download the mario ROM folder from the link below ***(University of Auckland emails only)***.
 
 https://drive.google.com/drive/folders/1L7W6dp5ToohZzRAuZAr3GVX-76twyBnc?usp=sharing 
+
+We will then unzip and copy the downloaded files into a roms folder in the ***root directory*** of the package.
+
+
+```
+cd Downloads
+unzip mario-*.zip
+cp -r mario ~/compsys726/compsys726_mario_expert/roms
+```
 
 ## Usage
 To run this package you can simply call "run.py" in the scripts folder of the package and pass your UoA assigned upi as an arguement. The initial example agent is a random explorer who will simply randomly select actions to play the game. 
@@ -52,7 +61,7 @@ You will see the game window open up and mario moving around randomly similar to
     <img src="./media/mario.gif"/>
 </p>
 
-The results of the agent playing the game will be saved into 'results/your_upi' - this will record the final game stats and a video of the agent playing the game. 
+The results of the agent playing the game will be saved into ***results/your_upi*** - this will record the final game stats and a video of the agent playing the game. 
 
 ## Implementation Requirements
 The agent you implement must be entirely developed within the ***mario_expert.py*** file. 
@@ -61,7 +70,9 @@ This is simply to enable automated competitions between your submissions.
 
 You are free to modify and expand the classes inside of "mario_expert.py" and add additional features/functions required to implement your agent. This is not best coding practice but it makes the lecturers lives easier. 
 
-## Agent Submission Process (Competition Only)
+# Competition
+
+## Agent Submission Process
 To submit your agent for the class Competition you need to upload your "mario_expert.py" file and "requirements.py" by following the steps below.
 
 ### Step 1 - Create updated requirements.txt
