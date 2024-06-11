@@ -52,7 +52,7 @@ To run this package you can simply call "run.py" in the scripts folder of the pa
 
 ```
 cd ~/compsys726/compsys726_mario_expert/scripts
-python3 run.py run --upi your_upi
+python3 run.py --upi your_upi
 ```
 
 You will see the game window open up and mario moving around randomly similar to the image below.
