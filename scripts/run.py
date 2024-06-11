@@ -9,7 +9,7 @@ import logging
 import os
 from pathlib import Path
 
-from mairo_expert import MarioExpert
+from mario_expert import MarioExpert
 
 logging.basicConfig(level=logging.INFO)
 

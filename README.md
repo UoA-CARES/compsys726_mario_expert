@@ -34,7 +34,7 @@ cd ~/compsys726/compsys726_mario_expert
 pip3 install -r requirements.txt
 ```
 
-Pull the mario ROM folder from the link below (University of Auckland emails only) and put into the roms folder in this package.
+Pull the mario ROM folder from the link below ***(University of Auckland emails only)*** and put into the roms folder in this package.
 
 https://drive.google.com/drive/folders/1L7W6dp5ToohZzRAuZAr3GVX-76twyBnc?usp=sharing 
 
@@ -55,8 +55,8 @@ You will see the game window open up and mario moving around randomly similar to
 The results of the agent playing the game will be saved into 'results/your_upi' - this will record the final game stats and a video of the agent playing the game. 
 
 ## Implementation Requirements
-The agent you implement must be entirely developed within the "mario_expert.py" file. 
-NO other file is to be edited - the automated competition system will only use your "mario_expert.py" file. 
+The agent you implement must be entirely developed within the ***mario_expert.py*** file. 
+NO other file is to be edited - the automated competition system will only use your ***mario_expert.py*** file. 
 This is simply to enable automated competitions between your submissions.
 
 You are free to modify and expand the classes inside of "mario_expert.py" and add additional features/functions required to implement your agent. This is not best coding practice but it makes the lecturers lives easier. 

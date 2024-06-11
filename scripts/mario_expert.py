@@ -7,17 +7,83 @@ Your goal is to implement the functions and methods required to enable choose_ac
 import json
 import logging
 import random
-import time
 
 import cv2
 from mario_environment import MarioEnvironment
+from pyboy.utils import WindowEvent
+
+
+class MarioController(MarioEnvironment):
+    """
+    The MarioController class represents a controller for the Mario game environment.
+
+    You can build upon this class all you want to implement your Mario Expert agent.
+
+    Args:
+        act_freq (int): The frequency at which actions are performed. Defaults to 10.
+        emulation_speed (int): The speed of the game emulation. Defaults to 0.
+        headless (bool): Whether to run the game in headless mode. Defaults to False.
+    """
+
+    def __init__(
+        self,
+        act_freq: int = 10,
+        emulation_speed: int = 0,
+        headless: bool = False,
+    ) -> None:
+        super().__init__(
+            act_freq=act_freq,
+            emulation_speed=emulation_speed,
+            headless=headless,
+        )
+
+        self.act_freq = act_freq
+
+        # Example of valid actions based purely on the buttons you can press
+        valid_actions: list[WindowEvent] = [
+            WindowEvent.PRESS_ARROW_DOWN,
+            WindowEvent.PRESS_ARROW_LEFT,
+            WindowEvent.PRESS_ARROW_RIGHT,
+            WindowEvent.PRESS_ARROW_UP,
+            WindowEvent.PRESS_BUTTON_A,
+            WindowEvent.PRESS_BUTTON_B,
+        ]
+
+        release_button: list[WindowEvent] = [
+            WindowEvent.RELEASE_ARROW_DOWN,
+            WindowEvent.RELEASE_ARROW_LEFT,
+            WindowEvent.RELEASE_ARROW_RIGHT,
+            WindowEvent.RELEASE_ARROW_UP,
+            WindowEvent.RELEASE_BUTTON_A,
+            WindowEvent.RELEASE_BUTTON_B,
+        ]
+
+        self.valid_actions = valid_actions
+        self.release_button = release_button
+
+    def run_action(self, action: int) -> None:
+        """
+        This is a very basic example of how this function could be implemented
+
+        As part of this assignment your job is to modify this function to better suit your needs
+
+        You can change the action type to whatever you want or need just remember the base control of the game is pushing buttons
+        """
+
+        # Simply toggles the buttons being on or off for a duration of act_freq
+        self.pyboy.send_input(self.valid_actions[action])
+
+        for _ in range(self.act_freq):
+            self.pyboy.tick()
+
+        self.pyboy.send_input(self.release_button[action])
 
 
 class MarioExpert:
     def __init__(self, results_path: str, headless=False):
         self.results_path = results_path
 
-        self.environment = MarioEnvironment(headless=headless)
+        self.environment = MarioController(headless=headless)
 
         self.video = None
 
@@ -27,7 +93,7 @@ class MarioExpert:
         game_area = self.environment.game_area()
 
         # Implement your code here to choose the best action
-        time.sleep(0.1)
+        # time.sleep(0.1)
         return random.randint(0, len(self.environment.valid_actions) - 1)
 
     def step(self):

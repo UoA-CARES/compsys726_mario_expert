@@ -77,7 +77,7 @@ def main():
 
         files = folders["files"]
         requirements_id = files["requirements.txt"]["id"]
-        mario_expert_id = files["mairo_expert.py"]["id"]
+        mario_expert_id = files["mario_expert.py"]["id"]
 
         requirement_path = f"{Path(__file__).parent.parent}"
 
