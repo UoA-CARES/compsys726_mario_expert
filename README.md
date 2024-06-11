@@ -87,7 +87,7 @@ results.json
 }
 ```
 
-## Implementing your Expert Agent
+# Implementing your Expert Agent
 The agent you implement must be entirely developed within the ***scripts/mario_expert.py*** file. 
 NO other file is to be edited - the automated competition system will only use your ***mario_expert.py*** file. 
 This is simply to enable automated competitions between your submissions.
