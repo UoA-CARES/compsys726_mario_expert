@@ -41,7 +41,7 @@ python3 run.py run --upi your_upi
 You will see the game window open up and mario moving around randomly similar to the image below.
 
 <p align="center">
-    <img src="./media/mario.gif" style="width: 40%;" />
+    <img src="./media/mario.gif"/>
 </p>
 
 The results of the agent playing the game will be saved into 'results/your_upi' - this will record the final game stats and a video of the agent playing the game. 
