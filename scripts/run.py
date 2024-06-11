@@ -25,6 +25,9 @@ def get_args():
 
 
 def run(upi, headless):
+    if upi == "your_upi":
+        raise ValueError("Please set your UPI in the run.py file")
+
     results_path = f"{Path(__file__).parent.parent}/results/{upi}"
     logging.info(f"Saving data into: {results_path}")
 

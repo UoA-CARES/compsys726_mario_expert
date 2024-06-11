@@ -2,6 +2,8 @@
 This the primary class for the Mario Expert agent. It contains the logic for the Mario Expert agent to play the game and choose actions.
 
 Your goal is to implement the functions and methods required to enable choose_action to select the best action for the agent to take.
+
+Original Mario Manual: https://www.thegameisafootarcade.com/wp-content/uploads/2017/04/Super-Mario-Land-Game-Manual.pdf
 """
 
 import json

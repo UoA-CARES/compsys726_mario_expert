@@ -4,7 +4,7 @@ The objective of this assignment is to implement your version of "mario_expert.p
 This document provides all the instructions to setup and run the base random agent example and then how to create your own expert agent.
 
 <p align="center">
-    <img src="./media/mario.png" style="width: 40%;" />
+    <img src="./media/mario-land.png" style="width: 40%;" />
 </p>
 
 # Assignment Instructions
@@ -58,6 +58,8 @@ cp -r mario ~/compsys726/compsys726_mario_expert/roms
 ## Usage
 To run this package you can simply call "run.py" in the scripts folder of the package and pass your UoA assigned upi as an arguement. The initial example agent is a random explorer who will simply randomly select actions to play the game. 
 
+NOTE: replace ***your_upi*** with your upi
+
 ```
 cd ~/compsys726/compsys726_mario_expert/scripts
 python3 run.py --upi your_upi
@@ -72,11 +74,20 @@ You will see the game window open up and mario moving around randomly similar to
 The results of the agent playing the game will be saved into ***results/your_upi*** - this will record the final game stats and a video of the agent playing the game. 
 
 ## Implementation Requirements
-The agent you implement must be entirely developed within the ***mario_expert.py*** file. 
+The agent you implement must be entirely developed within the ***scripts/mario_expert.py*** file. 
 NO other file is to be edited - the automated competition system will only use your ***mario_expert.py*** file. 
 This is simply to enable automated competitions between your submissions.
 
 You are free to modify and expand the classes inside of "mario_expert.py" and add additional features/functions required to implement your agent. This is not best coding practice but it makes the lecturers lives easier. 
+
+## Mario Manual
+For those too young to remember physical manuals, the link below provides the physical manual with instructions on how to play Super Mario Land. This information will be super useful for developing your expert agent.
+
+https://www.thegameisafootarcade.com/wp-content/uploads/2017/04/Super-Mario-Land-Game-Manual.pdf
+
+<p align="center">
+    <img src="./media/mario-manuel.png" style="width: 40%;" />
+</p>
 
 # Competition (Optional)
 The class competition is a chance to earn ***bonus*** marks by potentially placing the top 10 furthests highest scoring agent.
