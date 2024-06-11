@@ -3,12 +3,48 @@ The objective of this assignment is to implement your version of "mario_expert.p
 
 This document provides all the instructions to setup and run the base random agent example and then how to create your own expert agent.
 
+<p align="center">
+    <img src="./media/mario.png" style="width: 40%;" />
+</p>
+
 # Assignment Instructions
 The objective is to develop an expert agent capable of playing Super Mario into "mario_expert.py".
 The agent must be developed as an expert system - you are free to choose how you implement the expert, using any methodology or resources online that you wish.
 The only exception is you are NOT allowed to utilise Machine Learning as that is not an expert system - https://en.wikipedia.org/wiki/Expert_system.
 
 The full details of the assignment marking and expectations of the report are laid out on Canvas: TODO
+
+## Setup
+Pull this package onto your computer into any directory you desire.
+
+`git clone` the repository into your desired directory on your local machine
+
+```
+git clone https://github.com/UoA-CARES/compsys726_mario_expert.git 
+```
+
+To run this package you must first install the required python packages. These packages are the base packages required to run the minimal example, you will most likely need to install additional packages to complete the assignment.
+
+Run `pip3 install -r requirements.txt` in the **root directory** of the package
+
+Pull the mario ROM folder from the link below (University of Auckland emails only) and put into the roms folder in this package.
+
+https://drive.google.com/drive/folders/1L7W6dp5ToohZzRAuZAr3GVX-76twyBnc?usp=sharing 
+
+## Usage
+To run this package you can simply call "run.py" and pass your UoA assigned upi as an arguement. The initial example agent is a random explorer who will simply randomly select actions to play the game. 
+
+```
+python3 run.py run --upi your_upi
+```
+
+You will see the game window open up and mario moving around randomly similar to the image below.
+
+<p align="center">
+    <img src="./media/mario.gif" style="width: 40%;" />
+</p>
+
+The results of the agent playing the game will be saved into 'results/your_upi' - this will record the final game stats and a video of the agent playing the game. 
 
 ## Implementation Requirements
 The agent you implement must be entirely developed within the "mario_expert.py" file. 
@@ -35,29 +71,3 @@ Following this link: https://drive.google.com/drive/folders/1xM3Dhtm3YCoLnMFTMxy
 Create a folder using your upi as the name. 
 
 Copy the new 'requirements.txt' and 'mario_expert.py' files into the folder. 
-
-# Setup
-Pull this package onto your computer into any directory you desire.
-
-`git clone` the repository into your desired directory on your local machine
-
-```
-git clone https://github.com/UoA-CARES/compsys726_mario_expert.git 
-```
-
-To run this package you must first install the required python packages. These packages are the base packages required to run the minimal example, you will most likely need to install additional packages to complete the assignment.
-
-Run `pip3 install -r requirements.txt` in the **root directory** of the package
-
-Pull the mario ROM folder from the link below (University of Auckland emails only) and put into the roms folder in this package.
-
-https://drive.google.com/drive/folders/1L7W6dp5ToohZzRAuZAr3GVX-76twyBnc?usp=sharing 
-
-# Usage
-To run this package you can simply call "run.py" and pass your UoA assigned upi as an arguement. The initial example agent is a random explorer who will simply randomly select actions to play the game. 
-
-```
-python3 run.py run --upi your_upi
-```
-
-The results of the agent playing the game will be saved into 'results/your_upi' - this will record the final game stats and a video of the agent playing the game. 
