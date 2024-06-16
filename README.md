@@ -92,9 +92,31 @@ The agent you implement must be entirely developed within the ***scripts/mario_e
 NO other file is to be edited - the automated competition system will only use your ***mario_expert.py*** file. 
 This is simply to enable automated competitions between your submissions.
 
-You are free to modify and expand the classes inside of "mario_expert.py" and add additional features/functions required to implement your agent. This is not best coding practice but it makes the lecturers lives easier. 
+## Mario Expert (mario_expert.py)
+You are free to modify and expand the classes inside of ***scripts/mario_expert.py*** and add additional features/functions required to implement your agent. This is not best coding practice but it makes the lecturers lives easier. 
 
-## Mario Expert
+Mario Expert contains two classes as examples of how to implement this project - MarioController, and MarioExpert
+
+### MarioController
+The MarioController class represents a controller for the Mario game environment that extends MarioEnvironment and inherits all of its functions. 
+
+You can build upon this class all you want to implement your Mario Expert agent - this class enables you to read the game state, and take actions as Mario.
+
+Args:
+    act_freq (int): The frequency at which actions are performed. Defaults to 10.
+    emulation_speed (int): The speed of the game emulation. Defaults to 0.
+    headless (bool): Whether to run the game in headless mode. Defaults to False.
+
+### MarioExpert
+The MarioExpert class represents an expert agent for playing the Mario game.
+
+Edit this class to implement the logic for the Mario Expert agent to play the game.
+
+Do NOT edit the input parameters for the __init__ method.
+
+Args:
+    results_path (str): The path to save the results and video of the gameplay.
+    headless (bool, optional): Whether to run the game in headless mode. Defaults to False.
 
 
 ## Mario Manual

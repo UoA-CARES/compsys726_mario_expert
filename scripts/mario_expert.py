@@ -82,6 +82,18 @@ class MarioController(MarioEnvironment):
 
 
 class MarioExpert:
+    """
+    The MarioExpert class represents an expert agent for playing the Mario game.
+
+    Edit this class to implement the logic for the Mario Expert agent to play the game.
+
+    Do NOT edit the input parameters for the __init__ method.
+
+    Args:
+        results_path (str): The path to save the results and video of the gameplay.
+        headless (bool, optional): Whether to run the game in headless mode. Defaults to False.
+    """
+
     def __init__(self, results_path: str, headless=False):
         self.results_path = results_path
 
