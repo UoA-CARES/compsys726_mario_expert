@@ -138,6 +138,10 @@ Agents will be scored first based on the progression of the game - this is measu
 
 The top placement will also win a neat trophy!
 
+<p align="center">
+    <img src="./media/mario-trophy.jpeg"/>
+</p>
+
 ## Agent Submission Process
 To submit your agent for the class Competition you need to upload your "mario_expert.py" file and "requirements.py" by following the steps below. No other files will be utilised - the code needs to be self sufficient within "mario_expert.py" and all additional package requirements must be captured in the "requirements.txt". 
 
