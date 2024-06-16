@@ -102,22 +102,12 @@ The MarioController class represents a controller for the Mario game environment
 
 You can build upon this class all you want to implement your Mario Expert agent - this class enables you to read the game state, and take actions as Mario.
 
-Args:
-    act_freq (int): The frequency at which actions are performed. Defaults to 10.
-    emulation_speed (int): The speed of the game emulation. Defaults to 0.
-    headless (bool): Whether to run the game in headless mode. Defaults to False.
-
 ### MarioExpert
 The MarioExpert class represents an expert agent for playing the Mario game.
 
 Edit this class to implement the logic for the Mario Expert agent to play the game.
 
 Do NOT edit the input parameters for the __init__ method.
-
-Args:
-    results_path (str): The path to save the results and video of the gameplay.
-    headless (bool, optional): Whether to run the game in headless mode. Defaults to False.
-
 
 ## Mario Manual
 The link below provides the physical manual with instructions on how to play Super Mario Land. This information will be super useful for developing your expert agent. For those too young to remember physical manuals these used to come with the physical cartridge and you couldn't just Google how to play. 
