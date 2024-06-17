@@ -107,12 +107,71 @@ The MarioController class represents a controller for the Mario game environment
 
 You can build upon this class all you want to implement your Mario Expert agent - this class enables you to read the game state, and take actions as Mario.
 
+A key function to explore is how the agent interacts with the environment through ***run_action***- this function is a very basic single button press implementation.
+
+```
+def run_action(self, action: int) -> None:
+    """
+    This is a very basic example of how this function could be implemented
+
+    As part of this assignment your job is to modify this function to better suit your needs
+
+    You can change the action type to whatever you want or need just remember the base control of the game is pushing buttons
+    """
+
+    # Simply toggles the buttons being on or off for a duration of act_freq
+    self.pyboy.send_input(self.valid_actions[action])
+
+    for _ in range(self.act_freq):
+        self.pyboy.tick()
+
+    self.pyboy.send_input(self.release_button[action])
+```
+
 ### MarioExpert
 The MarioExpert class represents an expert agent for playing the Mario game.
 
 Edit this class to implement the logic for the Mario Expert agent to play the game.
 
-Do NOT edit the input parameters for the __init__ method.
+Do NOT edit the input parameters for the __init__, play, start_video, stop_video methods.
+
+The key functions to explore how the agent thinks about what action to take is through ***step*** and ***choose_action** - these functions are currently a very basic random agent.
+
+Step is run after each action by default - you need to decide which action to take and then execute it. 
+
+```
+def step(self):
+    """
+    Modify this function as required to implement the Mario Expert agent's logic.
+
+    This is just a very basic example
+    """
+
+    # Choose an action - button press or other...
+    action = self.choose_action()
+
+    # Run the action on the environment
+    self.environment.run_action(action)
+```
+
+Choose action shows you the type of information you can use to decide what action to take.
+
+State contains the games statistics at the current step of the game.
+
+Frame contains the RGB image of the game screen.
+
+Game area is a simplified version of the game screen with the specific icon catagories instead of just RGB data.
+
+```
+def choose_action(self):
+    state = self.environment.game_state()
+    frame = self.environment.grab_frame()
+    game_area = self.environment.game_area()
+
+    # Implement your code here to choose the best action
+    # time.sleep(0.1)
+    return random.randint(0, len(self.environment.valid_actions) - 1)
+```
 
 ## Mario Manual
 The link below provides the physical manual with instructions on how to play Super Mario Land. This information will be super useful for developing your expert agent. For those too young to remember physical manuals these used to come with the physical cartridge and you couldn't just Google how to play. 
