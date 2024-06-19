@@ -15,7 +15,7 @@ The objective of this assignment is to implement your version of "mario_expert.p
 The agent must be developed as an expert system - you are free to choose how you implement the expert, using any methodology or resources online that you wish.
 The only exception is you are NOT allowed to utilise Machine Learning as that is not an expert system - https://en.wikipedia.org/wiki/Expert_system.
 
-The full details of the assignment marking and expectations of the report are laid out on Canvas: TODO
+The full details of the assignment marking and expectations of the report are laid out on Canvas: https://canvas.auckland.ac.nz/courses/104294/assignments/399077 
 
 ## Setup
 Pull this package onto your computer - these instructions will default to using a folder called "~/compsys726" but you may pull these package into any directory you desire.
@@ -70,11 +70,11 @@ python3 run.py --upi your_upi
 
 You will see the game window open up and mario moving around randomly similar to the image below.
 
+The results of the agent playing the game will be saved into ***results/your_upi/results.json*** - this will record the final game stats and a video of the agent playing the game as below: 
+
 <p align="center">
     <img src="./media/mario.gif"/>
 </p>
-
-The results of the agent playing the game will be saved into ***results/your_upi/results.json*** - this will record the final game stats and a video of the agent playing the game as below: 
 
 ```
 results.json
