@@ -228,6 +228,12 @@ Create a folder using your ***upi*** as the name. Copy your 'requirements.txt' a
 
 It is imperative that the files maintain their names - ***mario_expert.py*** and ***requirements.txt*** for the automted system to parse them correctly. 
 
+This should look like the example below:
+
+<p align="center">
+    <img src="./media/mario-upload.png" style="width: 60%;" />
+</p>
+
 ## Competition Day
 After the submission date the lecturers will run the automated competition offline - the results of the competition will be presented in class with the top 10 agents and their performance being shown.
 
