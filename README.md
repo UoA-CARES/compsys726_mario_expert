@@ -55,7 +55,7 @@ We will then unzip and copy the downloaded files into a roms folder in the ***ro
 ```
 cd Downloads
 unzip mario-*.zip
-cp -r mario ~/compsys726/compsys726_mario_expert/roms
+cp -r mario ~/compsys726/compsys726_mario_expert/roms/mario
 ```
 
 ## Usage
