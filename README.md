@@ -53,7 +53,7 @@ https://drive.google.com/drive/folders/1L7W6dp5ToohZzRAuZAr3GVX-76twyBnc?usp=sha
 We will then unzip and copy the downloaded files into a roms folder in the ***root directory*** of the package.
 
 ```
-cd Downloads
+cd ~/Downloads
 unzip mario-*.zip
 cp -r mario ~/compsys726/compsys726_mario_expert/roms/mario
 ```
