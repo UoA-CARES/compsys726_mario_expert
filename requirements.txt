@@ -1,4 +1,4 @@
-numpy==1.21.5
+numpy==1.26.4
 opencv_contrib_python==4.6.0.66
 pyboy==2.0.0
 PyDrive2==1.19.0
