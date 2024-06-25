@@ -4,7 +4,7 @@ This document provides all the instructions to setup and run the base random age
 ## Mario
 "Super Mario Land," released for the Game Boy in 1989, is a classic platformer that marked Mario's first foray onto a handheld console. Developed by Nintendo, the game features Mario on a quest to rescue Princess Daisy from the clutches of the alien Tatanga. Unlike other Mario games, "Super Mario Land" takes players through the unique worlds of Sarasaland, introducing new enemies and environments distinct from the familiar Mushroom Kingdom. The gameplay retains the core mechanics of running, jumping, and power-ups, including a new vehicle-based level where Mario pilots a submarine and an airplane. Its innovative design and portability helped solidify the Game Boy's success, making "Super Mario Land" a beloved entry in the Mario franchise.
 
-Additional Details: [https://en.wikipedia.org/wiki/Super_Mario_Land](https://www.mariowiki.com/Super_Mario_Land)  
+Additional Details: https://www.mariowiki.com/Super_Mario_Land 
 
 <p align="center">
     <img src="./media/mario-land.png" style="width: 40%;" />
