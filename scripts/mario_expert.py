@@ -80,7 +80,6 @@ class MarioController(MarioEnvironment):
 
         self.pyboy.send_input(self.release_button[action])
 
-
 class MarioExpert:
     """
     The MarioExpert class represents an expert agent for playing the Mario game.
@@ -101,14 +100,33 @@ class MarioExpert:
 
         self.video = None
 
+    def find_mario(self, game_area):
+        for x in range(len(game_area)):
+            for y in range(len(game_area[x])):
+                if game_area[x][y] == 1:
+                    return (x, y)
+        return None  # Return None if 1 is not found
+
+    def check_power_up(self, x, y, game_area):
+        if (game_area[x + 1][y - 3] == 13):
+            return "jump"
+        return None
+
     def choose_action(self):
         state = self.environment.game_state()
         frame = self.environment.grab_frame()
         game_area = self.environment.game_area()
 
-        # Implement your code here to choose the best action
-        # time.sleep(0.1)
-        return 2
+        print(game_area)
+
+        (x,y) = self.find_mario(game_area)
+        print(x,y)
+
+        if(self.check_power_up(x, y, game_area) == "jump"):
+            return 3
+        # get mario position indicated by 1s on game area
+
+        return 4
 
     def step(self):
         """
@@ -161,3 +179,6 @@ class MarioExpert:
         Do NOT edit this method.
         """
         self.video.release()
+
+
+    
