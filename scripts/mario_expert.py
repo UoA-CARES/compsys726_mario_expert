@@ -13,7 +13,21 @@ import random
 import cv2
 from mario_environment import MarioEnvironment
 from pyboy.utils import WindowEvent
+from enum import Enum
 
+class Action(Enum):
+    DOWN = 0
+    LEFT = 1
+    RIGHT = 2
+    UP = 3
+    JUMP = 4
+    PRESS_A = 5
+    PRESS_B = 6
+
+
+actions = [Action.JUMP, Action.RIGHT, Action.JUMP, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.JUMP, Action.RIGHT, Action.RIGHT, Action.JUMP, Action.JUMP]
+action_index = 0
+prev_action = 0
 
 class MarioController(MarioEnvironment):
     """
@@ -109,24 +123,31 @@ class MarioExpert:
 
     def check_power_up(self, x, y, game_area):
         if (game_area[x + 1][y - 3] == 13):
-            return "jump"
-        return None
+            return True
+        return False
 
     def choose_action(self):
+        global action_index
+        curr_action = 0
+        
         state = self.environment.game_state()
-        frame = self.environment.grab_frame()
+        # frame = self.environment.grab_frame()
         game_area = self.environment.game_area()
 
-        print(game_area)
+        ## movement conditions
+        if actions[action_index] == Action.JUMP:
+            curr_action = Action.JUMP
+            print("jump")
+        elif actions[action_index] == Action.RIGHT:
+            curr_action = Action.RIGHT
+            print("walk right")
+        else:
+            curr_action = Action.RIGHT
 
-        (x,y) = self.find_mario(game_area)
-        print(x,y)
+        if action_index < len(actions)-1:
+            action_index += 1 # move to next action if there is one
 
-        if(self.check_power_up(x, y, game_area) == "jump"):
-            return 3
-        # get mario position indicated by 1s on game area
-
-        return 4
+        return curr_action.value # default walk right
 
     def step(self):
         """
@@ -140,6 +161,7 @@ class MarioExpert:
 
         # Run the action on the environment
         self.environment.run_action(action)
+        
 
     def play(self):
         """
