@@ -21,11 +21,9 @@ class Action(Enum):
     RIGHT = 2
     UP = 3
     JUMP = 4
-    PRESS_A = 5
-    PRESS_B = 6
+    PRESS_B = 5
 
 prev_action = Action.RIGHT
-already_jumped = False
 
 class MarioController(MarioEnvironment):
     """
@@ -130,16 +128,22 @@ class MarioExpert:
 
     
     def check_enemy_right(self, row, col, game_area):
-        if (game_area[row + 1][col + 1] == 15 or game_area[row + 1][col + 1] == 15):
+        if (game_area[row][col + 1] == 15 or game_area[row + 1][col + 1] == 15 or game_area[row + 2][col + 1] == 15):
             print("found enemy")
             return True
         return False
     
     def check_enemy_up(self, row, col, game_area):
-        for row in range(len(game_area)):
-            if game_area[row][col] == 15:
+            if game_area[row][col] == 15 or game_area[row + 1][col] == 15 or game_area[row + 2][col] == 15 or game_area[row + 3][col] == 15:
+                print("found enemy up")
                 return True
-        return False
+            return False
+    
+    def check_enemy_down(self, row, col, game_area):
+            if game_area[row+1][col] == 15 or game_area[row+2][col] == 15 or game_area[row+2][col+1] == 15 or game_area[row+2][col+2] == 15: 
+                print("Found enemy down")
+                return True
+            return False
     
     def check_block(self, row, col, game_area):
         if (game_area[row][col + 2] == 14 or game_area[row][col + 2] == 10):
@@ -158,41 +162,53 @@ class MarioExpert:
             return False
 
     def check_left(self, row, col, game_area):
-        if self.check_enemy_up(row, col, game_area):
+        if self.check_enemy_up(row, col, game_area) or self.check_enemy_right(row, col, game_area):
+            print("going left")
             return True
         return False
     
+    def check_right(self, row, col, game_area):
+        if self.check_block(row, col, game_area) or self.check_enemy_right(row, col, game_area):
+            return False
+        return True
+    
     def choose_action(self):
         global prev_action
-        global already_jumped
         # global curr_lives
         # global prev_lives
         curr_action = 0
 
         state = self.environment.game_state()
         game_area = self.environment.game_area()
-        print(game_area.shape)
-        print(game_area)
+        # print(game_area)
         row,col = self.find_mario(game_area) # get game area
-
+        if row == 15:
+            return Action.PRESS_A.value
+        
+        print(row, col)
+        print(self.environment.get_lives())
         # check which action to perform, defaults to right
         jump = self.check_jump(row, col, game_area)
         left = self.check_left(row, col, game_area)
-        
-        if prev_action == Action.JUMP:
-            curr_action = Action.JUMP        
+        right = self.check_right(row, col, game_area)
 
-        elif jump:
+        if self.check_enemy_down(row, col, game_area):
+            curr_action = Action.LEFT
+
+        elif prev_action == Action.JUMP:
+            curr_action = Action.PRESS_B
+
+        elif jump and prev_action != Action.JUMP and prev_action != Action.LEFT and self.check_enemy_up(row, col, game_area) == False:
             curr_action = Action.JUMP
 
         elif left:
             curr_action = Action.LEFT
 
-        else:
+        elif right:
             curr_action = Action.RIGHT
-
-        if curr_action == Action.JUMP and already_jumped == True:
-            already_jumped = False
+        
+        else:
+            curr_action = Action.LEFT
 
         prev_action = curr_action # record current action
 
