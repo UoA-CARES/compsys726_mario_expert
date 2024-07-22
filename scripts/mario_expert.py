@@ -24,10 +24,8 @@ class Action(Enum):
     PRESS_A = 5
     PRESS_B = 6
 
-
-actions = [Action.JUMP, Action.RIGHT, Action.JUMP, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.RIGHT, Action.JUMP, Action.RIGHT, Action.RIGHT, Action.JUMP, Action.JUMP]
-action_index = 0
-prev_action = 0
+prev_action = Action.RIGHT
+already_jumped = False
 
 class MarioController(MarioEnvironment):
     """
@@ -118,37 +116,90 @@ class MarioExpert:
         for x in range(len(game_area)):
             for y in range(len(game_area[x])):
                 if game_area[x][y] == 1:
-                    return (x, y)
+                    return (x, y + 1)
         return None  # Return None if 1 is not found
 
-    def check_power_up(self, x, y, game_area):
-        if (game_area[x + 1][y - 3] == 13):
-            return True
+    def check_power_up(self, row, col, game_area):
+        # print("checking for power up")
+        for row in range(len(game_area)):
+            if game_area[row][col] == 13 or game_area[row][col + 1] == 13:
+                # print("power up found")
+                return True
+        # print("power up not found")
         return False
 
-    def choose_action(self):
-        global action_index
-        curr_action = 0
-        
-        state = self.environment.game_state()
-        # frame = self.environment.grab_frame()
-        game_area = self.environment.game_area()
+    
+    def check_enemy_right(self, row, col, game_area):
+        if (game_area[row + 1][col + 1] == 15 or game_area[row + 1][col + 1] == 15):
+            print("found enemy")
+            return True
+        return False
+    
+    def check_enemy_up(self, row, col, game_area):
+        for row in range(len(game_area)):
+            if game_area[row][col] == 15:
+                return True
+        return False
+    
+    def check_block(self, row, col, game_area):
+        if (game_area[row][col + 2] == 14 or game_area[row][col + 2] == 10):
+            return True
+        return False
+    
+    def check_jump(self, row, col, game_area):
+        # check power up
+        if self.check_power_up(row, col, game_area):
+            return True
+        elif self.check_enemy_right(row, col, game_area):
+            return True
+        elif self.check_block(row, col, game_area):
+            return True
+        else:
+            return False
 
-        ## movement conditions
-        if actions[action_index] == Action.JUMP:
+    def check_left(self, row, col, game_area):
+        if self.check_enemy_up(row, col, game_area):
+            return True
+        return False
+    
+    def choose_action(self):
+        global prev_action
+        global already_jumped
+        # global curr_lives
+        # global prev_lives
+        curr_action = 0
+
+        state = self.environment.game_state()
+        game_area = self.environment.game_area()
+        print(game_area.shape)
+        print(game_area)
+        row,col = self.find_mario(game_area) # get game area
+
+        # check which action to perform, defaults to right
+        jump = self.check_jump(row, col, game_area)
+        left = self.check_left(row, col, game_area)
+        
+        if prev_action == Action.JUMP:
+            curr_action = Action.JUMP        
+
+        elif jump:
             curr_action = Action.JUMP
-            print("jump")
-        elif actions[action_index] == Action.RIGHT:
-            curr_action = Action.RIGHT
-            print("walk right")
+
+        elif left:
+            curr_action = Action.LEFT
+
         else:
             curr_action = Action.RIGHT
 
-        if action_index < len(actions)-1:
-            action_index += 1 # move to next action if there is one
+        if curr_action == Action.JUMP and already_jumped == True:
+            already_jumped = False
 
-        return curr_action.value # default walk right
+        prev_action = curr_action # record current action
 
+        print("Action: ", curr_action)
+
+        return curr_action.value  # Return the value of the current action
+    
     def step(self):
         """
         Modify this function as required to implement the Mario Expert agent's logic.
