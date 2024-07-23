@@ -23,6 +23,14 @@ class Action(Enum):
     JUMP = 4
     PRESS_B = 5
 
+class Element(Enum):
+    GUMBA = 15
+    BLOCK = 10
+    POWERUP = 13
+    PIPE = 14
+    PICKUP = 6
+
+row, col = 0, 0
 prev_action = Action.RIGHT
 
 class MarioController(MarioEnvironment):
@@ -110,51 +118,65 @@ class MarioExpert:
 
         self.video = None
 
-    def find_mario(self, game_area):
-        for x in range(len(game_area)):
-            for y in range(len(game_area[x])):
-                if game_area[x][y] == 1:
-                    return (x, y + 1)
-        return None  # Return None if 1 is not found
+    def find_mario(self, game_area, row, col):
+        x, y = game_area.shape
+        for a in range(x):
+            for b in range(y):
+                if game_area[a][b] == 1:
+                    return (a, b + 1)
+        return row, col  # Return None if 1 is not found
 
     def check_power_up(self, row, col, game_area):
         # print("checking for power up")
         for row in range(len(game_area)):
-            if game_area[row][col] == 13 or game_area[row][col + 1] == 13:
+            if game_area[row][col] == Element.POWERUP.value or game_area[row][col + 1] == Element.POWERUP.value or game_area[row][col] == Element.PICKUP.value or game_area[row][col + 1] == Element.PICKUP.value:
                 # print("power up found")
                 return True
         # print("power up not found")
         return False
 
-    
-    def check_enemy_right(self, row, col, game_area):
-        if (game_area[row][col + 1] == 15 or game_area[row + 1][col + 1] == 15 or game_area[row + 2][col + 1] == 15):
-            print("found enemy")
+    def check_num_enemies_onscreen(self, row, col, game_area):
+        enemy_count = 0
+        for i in game_area:
+            if i == Element.GUMBA.value:
+                enemy_count += 1
+        
+        return enemy_count
+
+    def check_enemy_jump(self, row, col, game_area):
+        # only jump to kill enemy
+        if (game_area[row + 1][col + 4] == Element.GUMBA.value or game_area[row + 1][col + 2] == Element.GUMBA.value or game_area[row + 1][col + 3] == Element.GUMBA.value or game_area[row + 1][col + 1] == Element.GUMBA.value):
+            print("found enemy right, jumping")
             return True
         return False
     
     def check_enemy_up(self, row, col, game_area):
-            if game_area[row][col] == 15 or game_area[row + 1][col] == 15 or game_area[row + 2][col] == 15 or game_area[row + 3][col] == 15:
-                print("found enemy up")
-                return True
-            return False
+        if game_area[row][col] == Element.GUMBA.value or game_area[row + 1][col] == Element.GUMBA.value or game_area[row + 2][col] == Element.GUMBA.value or game_area[row + 3][col] == 15:
+            print("found enemy up")
+            return True
+        return False
     
     def check_enemy_down(self, row, col, game_area):
-            if game_area[row+1][col] == 15 or game_area[row+2][col] == 15 or game_area[row+2][col+1] == 15 or game_area[row+2][col+2] == 15: 
-                print("Found enemy down")
-                return True
-            return False
+        if game_area[row+1][col] == Element.GUMBA.value or game_area[row+2][col] == Element.GUMBA.value or game_area[row+2][col+1] == Element.GUMBA.value or game_area[row+2][col+2] == Element.GUMBA.value or game_area[row + 1][col + 3] == Element.GUMBA.value: 
+            print("Found enemy down")
+            return True
+        return False
+    
+    def check_enemy_right(self, row, col, game_area):
+        if game_area[row+1][col+1] == Element.GUMBA.value or game_area[row+1][col+2] == Element.GUMBA.value or game_area[row+1][col+3] == Element.GUMBA.value:
+            return True
+        return False
     
     def check_block(self, row, col, game_area):
-        if (game_area[row][col + 2] == 14 or game_area[row][col + 2] == 10):
+        if (game_area[row][col + 2] == Element.PIPE.value or game_area[row][col + 2] == Element.BLOCK.value):
             return True
         return False
     
     def check_jump(self, row, col, game_area):
-        # check power up
+        # conditions to check for are power up above, enemy to the right, or a block to the right
         if self.check_power_up(row, col, game_area):
             return True
-        elif self.check_enemy_right(row, col, game_area):
+        elif self.check_enemy_jump(row, col, game_area):
             return True
         elif self.check_block(row, col, game_area):
             return True
@@ -163,27 +185,31 @@ class MarioExpert:
 
     def check_left(self, row, col, game_area):
         if self.check_enemy_up(row, col, game_area) or self.check_enemy_right(row, col, game_area):
-            print("going left")
+            return True
+        if self.check_enemy_right(row, col, game_area): # if an enemy is too close, move left
             return True
         return False
     
     def check_right(self, row, col, game_area):
         if self.check_block(row, col, game_area) or self.check_enemy_right(row, col, game_area):
             return False
+        elif self.check_enemy_right(row, col, game_area): 
+            return False
         return True
     
     def choose_action(self):
         global prev_action
+        global row, col
         # global curr_lives
         # global prev_lives
         curr_action = 0
 
         state = self.environment.game_state()
         game_area = self.environment.game_area()
-        # print(game_area)
-        row,col = self.find_mario(game_area) # get game area
+        print(game_area)
+        row,col = self.find_mario(game_area, row, col) # get game area
         if row == 15:
-            return Action.PRESS_A.value
+            return Action.JUMP.value
         
         print(row, col)
         print(self.environment.get_lives())
@@ -192,11 +218,8 @@ class MarioExpert:
         left = self.check_left(row, col, game_area)
         right = self.check_right(row, col, game_area)
 
-        if self.check_enemy_down(row, col, game_area):
-            curr_action = Action.LEFT
-
-        elif prev_action == Action.JUMP:
-            curr_action = Action.PRESS_B
+        if prev_action == Action.JUMP:
+           curr_action = Action.LEFT
 
         elif jump and prev_action != Action.JUMP and prev_action != Action.LEFT and self.check_enemy_up(row, col, game_area) == False:
             curr_action = Action.JUMP
@@ -222,13 +245,11 @@ class MarioExpert:
 
         This is just a very basic example
         """
-
+        input("Press enter to continue") # for testing
         # Choose an action - button press or other...
         action = self.choose_action()
-
         # Run the action on the environment
         self.environment.run_action(action)
-        
 
     def play(self):
         """
