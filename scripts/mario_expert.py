@@ -163,12 +163,22 @@ class MarioExpert:
         return False
     
     def check_enemy_right(self, row, col, game_area):
-        if game_area[row+1][col+1] == Element.GUMBA.value or game_area[row+1][col+2] == Element.GUMBA.value or game_area[row+1][col+3] == Element.GUMBA.value:
+        #11 <- row, col
+        #11
+        if game_area[row+1][col+1] == Element.GUMBA.value or game_area[row+1][col+2] == Element.GUMBA.value or game_area[row+1][col+3] == Element.GUMBA.value or game_area[row+2][col+2] == Element.GUMBA.value or game_area[row][col+1] == Element.GUMBA.value:
+            print("Found enemy right, moving left")
             return True
         return False
     
     def check_block(self, row, col, game_area):
-        if (game_area[row][col + 2] == Element.PIPE.value or game_area[row][col + 2] == Element.BLOCK.value):
+        if (game_area[row][col + 1] == Element.BLOCK.value or game_area[row][col + 2] == Element.BLOCK.value):
+            print("Found block")
+            return True
+        return False
+    
+    def check_pipe(self, row, col, game_area):
+        if (game_area[row][col + 1] == Element.PIPE.value or game_area[row][col + 2] == Element.PIPE.value or game_area[row][col + 2] == Element.PIPE.value or game_area[row][col + 3] == Element.PIPE.value):
+            print("Found pipe")
             return True
         return False
     
@@ -179,6 +189,8 @@ class MarioExpert:
         elif self.check_enemy_jump(row, col, game_area):
             return True
         elif self.check_block(row, col, game_area):
+            return True
+        elif self.check_pipe(row, col, game_area):
             return True
         else:
             return False
@@ -206,7 +218,7 @@ class MarioExpert:
 
         state = self.environment.game_state()
         game_area = self.environment.game_area()
-        print(game_area)
+        
         row,col = self.find_mario(game_area, row, col) # get game area
         if row == 15:
             return Action.JUMP.value
@@ -214,14 +226,18 @@ class MarioExpert:
         print(row, col)
         print(self.environment.get_lives())
         # check which action to perform, defaults to right
-        jump = self.check_jump(row, col, game_area)
         left = self.check_left(row, col, game_area)
+        jump = self.check_jump(row, col, game_area)
         right = self.check_right(row, col, game_area)
 
         if prev_action == Action.JUMP:
-           curr_action = Action.LEFT
+           if game_area[row+1][col+1] == 0:
+                print("high jump")
+                curr_action = Action.RIGHT
+           else:
+                curr_action = Action.LEFT
 
-        elif jump and prev_action != Action.JUMP and prev_action != Action.LEFT and self.check_enemy_up(row, col, game_area) == False:
+        elif jump:
             curr_action = Action.JUMP
 
         elif left:
@@ -231,12 +247,13 @@ class MarioExpert:
             curr_action = Action.RIGHT
         
         else:
-            curr_action = Action.LEFT
+            curr_action = Action.RIGHT
 
         prev_action = curr_action # record current action
 
         print("Action: ", curr_action)
 
+        print(game_area)
         return curr_action.value  # Return the value of the current action
     
     def step(self):
