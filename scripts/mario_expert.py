@@ -145,7 +145,10 @@ class MarioExpert:
 
     def check_enemy_jump(self, row, col, game_area):
         # only jump to kill enemy
-        if (game_area[row + 1][col + 4] == Element.GUMBA.value or game_area[row + 1][col + 2] == Element.GUMBA.value or game_area[row + 1][col + 3] == Element.GUMBA.value or game_area[row + 1][col + 1] == Element.GUMBA.value):
+        if (game_area[row + 1][col + 4] == Element.GUMBA.value or 
+            game_area[row + 1][col + 2] == Element.GUMBA.value or 
+            game_area[row + 1][col + 3] == Element.GUMBA.value or 
+            game_area[row + 1][col + 1] == Element.GUMBA.value):
             print("found enemy right, jumping")
             return True
         return False
@@ -165,20 +168,35 @@ class MarioExpert:
     def check_enemy_right(self, row, col, game_area):
         #11 <- row, col
         #11
-        if game_area[row+1][col+1] == Element.GUMBA.value or game_area[row+1][col+2] == Element.GUMBA.value or game_area[row+1][col+3] == Element.GUMBA.value or game_area[row+2][col+2] == Element.GUMBA.value or game_area[row][col+1] == Element.GUMBA.value:
+        if (game_area[row+1][col+1] == Element.GUMBA.value or 
+            game_area[row+1][col+2] == Element.GUMBA.value or 
+            game_area[row+1][col+3] == Element.GUMBA.value or
+            game_area[row+2][col+1] == Element.GUMBA.value or 
+            game_area[row+2][col+2] == Element.GUMBA.value or 
+            game_area[row][col+1] == Element.GUMBA.value):
             print("Found enemy right, moving left")
             return True
         return False
     
     def check_block(self, row, col, game_area):
-        if (game_area[row][col + 1] == Element.BLOCK.value or game_area[row][col + 2] == Element.BLOCK.value):
+        if (game_area[row][col + 1] == Element.BLOCK.value or 
+            game_area[row][col + 2] == Element.BLOCK.value):
             print("Found block")
             return True
         return False
     
     def check_pipe(self, row, col, game_area):
-        if (game_area[row][col + 1] == Element.PIPE.value or game_area[row][col + 2] == Element.PIPE.value or game_area[row][col + 2] == Element.PIPE.value or game_area[row][col + 3] == Element.PIPE.value):
+        if (game_area[row][col + 1] == Element.PIPE.value or 
+            game_area[row][col + 2] == Element.PIPE.value):
             print("Found pipe")
+            return True
+        return False
+    
+    def check_cancel_jump(self, row, col, game_area):
+        # if an enemy is above you, don't jump
+        if (game_area[row+1][col+1] == Element.GUMBA.value or
+            game_area[row+2][col+1] == Element.GUMBA.value):
+            print("cancelling jump")
             return True
         return False
     
@@ -186,6 +204,8 @@ class MarioExpert:
         # conditions to check for are power up above, enemy to the right, or a block to the right
         if self.check_power_up(row, col, game_area):
             return True
+        elif self.check_cancel_jump(row, col, game_area):
+            return False
         elif self.check_enemy_jump(row, col, game_area):
             return True
         elif self.check_block(row, col, game_area):
@@ -231,10 +251,13 @@ class MarioExpert:
         right = self.check_right(row, col, game_area)
 
         if prev_action == Action.JUMP:
-           if game_area[row+1][col+1] == 0:
-                print("high jump")
-                curr_action = Action.RIGHT
-           else:
+            # if found a block/ pipe thats too high, press jump
+            if ((game_area[row + 2][col + 1] == Element.BLOCK.value or 
+                game_area[row + 2][col + 1] == Element.PIPE.value) and 
+                self.check_enemy_right(row, col, game_area) == False):
+                curr_action = Action.UP
+                print("going up")
+            else:
                 curr_action = Action.LEFT
 
         elif jump:
