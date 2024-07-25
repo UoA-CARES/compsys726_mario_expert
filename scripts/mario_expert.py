@@ -33,6 +33,7 @@ class Element(Enum):
     PIPE = 14
     PICKUP = 6
     MARIO = 1
+    EMPTY = 0
 
 row, col = 0, 0
 prev_action = Action.RIGHT
@@ -88,11 +89,8 @@ class MarioController(MarioEnvironment):
 
     def run_action(self, action: int) -> None:
         """
-        This is a very basic example of how this function could be implemented
-
-        As part of this assignment your job is to modify this function to better suit your needs
-
-        You can change the action type to whatever you want or need just remember the base control of the game is pushing buttons
+        Runs actions by pushing buttons for a set period of time. Certain actions can be pressed for longer, with different codes corresponding to each case.
+        Action.JUMP <= Action.JUMP_OBS (jump obstacle)
         """
 
         # extended hold duration when jumping over obstacles
@@ -130,6 +128,19 @@ class MarioExpert:
 
     def get_distance(self, row0, col0, row1, col1):
         return math.sqrt(((col1-col0) * (col1-col0)) + ((row1-row0) * (row1-row0))) # pythagoras
+
+    """
+    Checks surroundings of Mario, to see if he's in the air. Returns true if all surrounding values are the same
+    """
+    def check_surrounding(self, row, col, game_area, value):
+        return (game_area[row - 1][col - 1] == value and
+                game_area[row - 1][col] == value and
+                game_area[row - 1][col + 1] == value and
+                game_area[row][col - 1] == value and
+                game_area[row][col + 1] == value and
+                game_area[row + 1][col - 1] == value and
+                game_area[row + 1][col] == value and
+                game_area[row + 1][col + 1] == value)
 
     """
     Gets mario's position, returns the top right corner of Mario
@@ -207,6 +218,20 @@ class MarioExpert:
                             return True  # jump over obstacle
         return False
 
+    def check_empty_jump(self, row, col, game_area):
+        x, y = game_area.shape  # x is the number of rows, y is the number of columns
+        for b in range(y):  # Iterate over columns
+            for a in range(x):  # Iterate over rows
+                # Check for ground
+                if (game_area[a, b] == Element.EMPTY.value):
+                    if b >= col and a > row and (game_area[a, b-1] == Element.GROUND.value):  # If ground is to the right and below of Mario and block next to it is ground
+                        print(f"Empty loc: {a},{b}")
+                        distance = self.get_distance(row, col, a, b)
+                        print(f"Distance to empty: {distance}")
+                        if distance <= 2.0:
+                            return True  # jump over empty
+        return False
+
     def check_power_up(self, row, col, game_area):
         x, y = game_area.shape  # x is the number of rows, y is the number of columns
         for b in range(y):  # Iterate over columns
@@ -231,28 +256,7 @@ class MarioExpert:
                         if game_area[a,b+1] == Element.GROUND.value and game_area[a][b-1] == Element.GROUND.value:
                             return True
         return False
-     
-    def check_jump(self, row, col, game_area):
-        # don't jump again if you're not on the ground
-        if self.check_dist_to_ground(row, col, game_area):
-            return False 
-        # jump over gumba
-        elif self.get_gumba_dist(row, col, game_area):
-            return True
-        # jump to collect power up
-        elif self.check_power_up(row, col, game_area):
-            return True
-        # jump onto a platform
-        elif self.check_platform_jump(row, col, game_area):
-            return True
-        # jump over obstacle
-        elif self.check_obstacle(row, col, game_area):
-            return True
-        else:
-            return False
-
-    def check_left(self, row, col, game_area):
-        return False
+    
     
     def choose_action(self):
         global prev_action, next_action
@@ -295,6 +299,8 @@ class MarioExpert:
                 curr_action = Action.JUMP
         elif row == 0:
             curr_action = Action.UP
+        elif self.check_empty_jump(row, col, game_area):
+            curr_action = Action.JUMP
         # default to moving right
         else:
             curr_action = Action.RIGHT
