@@ -9,6 +9,7 @@ Original Mario Manual: https://www.thegameisafootarcade.com/wp-content/uploads/2
 import json
 import logging
 import random
+import math
 
 import cv2
 from mario_environment import MarioEnvironment
@@ -21,11 +22,13 @@ class Action(Enum):
     RIGHT = 2
     UP = 3
     JUMP = 4
-    PRESS_B = 5
+    JUMP_OBS = 5
+    PRESS_B = 6
 
 class Element(Enum):
     GUMBA = 15
-    BLOCK = 10
+    GROUND = 10
+    BLOCK = 12
     POWERUP = 13
     PIPE = 14
     PICKUP = 6
@@ -33,6 +36,7 @@ class Element(Enum):
 
 row, col = 0, 0
 prev_action = Action.RIGHT
+next_action = Action.RIGHT
 
 class MarioController(MarioEnvironment):
     """
@@ -91,11 +95,16 @@ class MarioController(MarioEnvironment):
         You can change the action type to whatever you want or need just remember the base control of the game is pushing buttons
         """
 
-        # Simply toggles the buttons being on or off for a duration of act_freq
-        self.pyboy.send_input(self.valid_actions[action])
-
-        for _ in range(self.act_freq):
-            self.pyboy.tick()
+        # extended hold duration when jumping over obstacles
+        if action == Action.JUMP_OBS:
+            self.pyboy.send_input(self.valid_actions[Action.JUMP])
+            for _ in range(self.act_freq*10):
+                self.pyboy.tick()
+        else:
+            # normal hold duration on all other inputs
+            self.pyboy.send_input(self.valid_actions[action])
+            for _ in range(self.act_freq):
+                self.pyboy.tick()
 
         self.pyboy.send_input(self.release_button[action])
 
@@ -119,125 +128,134 @@ class MarioExpert:
 
         self.video = None
 
+    def get_distance(self, row0, col0, row1, col1):
+        return math.sqrt(((col1-col0) * (col1-col0)) + ((row1-row0) * (row1-row0))) # pythagoras
+
+    """
+    Gets mario's position, returns the top right corner of Mario
+    11 <- this one
+    11
+    """
     def find_mario(self, game_area, row, col):
         x, y = game_area.shape
         for a in range(x):
             for b in range(y):
                 if game_area[a][b] == 1:
                     return (a, b + 1)
-        return row, col  # Return None if 1 is not found
+        return 0, 0  # if mario is not found
     
     def find_gumba(self, game_area):
         x,y = game_area.shape
         for a in range(x):
             for b in range(y):
                 if game_area[a][b] == Element.GUMBA.value:
-
                     return (a, b)
         return 0,0
+    
+    def get_gumba_dist(self, row, col, game_area):
+        x, y = game_area.shape  # x is the number of rows, y is the number of columns
+        for b in range(y):  # Iterate over columns
+            for a in range(x):  # Iterate over rows
+                # Check for blocks
+                if game_area[a, b] == Element.GUMBA.value:
+                    # Compute distance
+                    if b >= col:  # If gumba is to the right of Mario
+                        distance = self.get_distance(row, col, a, b)
+                        print(f"Distance to gumba: {distance}")
+                        if distance <= 4.5:
+                            return True
+        return False
+
+    def check_platform_jump(self, row, col, game_area):
+        x, y = game_area.shape  # x is the number of rows, y is the number of columns
+        for b in range(y):  # Iterate over columns
+            for a in range(x):  # Iterate over rows
+                # Check for blocks
+                if game_area[a, b] == Element.BLOCK.value:
+                    # Compute distance
+                    if a < row and b > col:  # If block is above and to the right of Mario
+                        distance = self.get_distance(row, col, a, b)
+                        print(f"distance to platform: {distance}")
+                        if distance <= 7.0:
+                            return True  # Found platform to jump on
+        return False
+
+    """
+    Check for obstacle to jump over
+    """
+    def check_obstacle(self, row, col, game_area):
+        x, y = game_area.shape  # x is the number of rows, y is the number of columns
+        for b in range(y):  # Iterate over columns
+            for a in range(x):  # Iterate over rows
+                # Check for blocks or pipes
+                if (game_area[a, b] == Element.BLOCK.value or 
+                    game_area[a][b] == Element.PIPE.value or
+                    (game_area[a][b] == Element.GROUND.value and b > col and a < row)):
+                    if b > col:  # If block is to the right of Mario
+                        distance = self.get_distance(row, col, a, b)
+                        if game_area[a, b] == Element.BLOCK.value:
+                            print(f"Distance to block: {distance}")
+                        elif game_area[a,b] == Element.GROUND.value:
+                            if game_area[a+1,b] == Element.GROUND.value and game_area[a-1,b] == Element.GROUND.value:
+                                print(f"Distance to Hill: {distance}")
+                                if distance <= 1.0:
+                                    return True
+                        elif game_area[a,b] == Element.PIPE.value:
+                            print(f"distance to pipe: {distance}")
+
+                        if distance <= 2.0:
+                            return True  # jump over obstacle
+        return False
 
     def check_power_up(self, row, col, game_area):
-        for row in range(len(game_area)):
-            if (game_area[row - 2][col] == Element.POWERUP.value):
-                return True
+        x, y = game_area.shape  # x is the number of rows, y is the number of columns
+        for b in range(y):  # Iterate over columns
+            for a in range(x):  # Iterate over rows
+                # Check for blocks
+                if game_area[a, b] == Element.POWERUP.value and self.check_on_ground(row, col, game_area) == True:
+                    if row >= a and b >= col:  # If power up is to the right and above Mario
+                        distance = self.get_distance(row, col, a, b)
+                        print(f"Distance to power up: {distance}")
+                        if distance <= 3.0 and game_area[row+2,col] == Element.GROUND.value:
+                            return True
+                        return False # missed power up
+                    
+    def check_on_ground(self, row, col, game_area):
+        x, y = game_area.shape
+        for b in range(y):  # Iterate over columns
+            for a in range(x):  # Iterate over rows
+                # Check for blocks
+                if game_area[a, b] == Element.GROUND.value:
+                    if col == b:  # If ground is under Mario
+                        # check adjacent squares for ground
+                        if game_area[a,b+1] == Element.GROUND.value and game_area[a][b-1] == Element.GROUND.value:
+                            return True
         return False
-
-    def check_enemy_jump(self, row, col, game_area):
-        # only jump to kill enemy
-        if (game_area[row + 1][col + 4] == Element.GUMBA.value or 
-            game_area[row + 1][col + 2] == Element.GUMBA.value or 
-            game_area[row + 1][col + 3] == Element.GUMBA.value or 
-            game_area[row + 1][col + 1] == Element.GUMBA.value):
-            print("found enemy right, jumping")
-            return True
-        return False
-    
-    def check_enemy_up(self, row, col, game_area):
-        if (game_area[row][col] == Element.GUMBA.value or 
-            game_area[row - 1][col] == Element.GUMBA.value or 
-            game_area[row - 2][col] == Element.GUMBA.value or 
-            game_area[row - 3][col] == 15):
-            return True
-        return False
-    
-    def check_enemy_down(self, row, col, game_area):
-        if (game_area[row+1][col] == Element.GUMBA.value or 
-            game_area[row+2][col] == Element.GUMBA.value or 
-            game_area[row+2][col+1] == Element.GUMBA.value or 
-            game_area[row+2][col+2] == Element.GUMBA.value or 
-            game_area[row + 1][col + 3] == Element.GUMBA.value): 
-            print("Found enemy down")
-            return True
-        return False
-    
-    def check_enemy_right(self, row, col, game_area):
-        #11 <- row, col
-        #11
-        if (game_area[row+1][col+1] == Element.GUMBA.value or 
-            game_area[row+1][col+2] == Element.GUMBA.value or 
-            game_area[row+1][col+3] == Element.GUMBA.value or
-            game_area[row+2][col+1] == Element.GUMBA.value or 
-            game_area[row+2][col+2] == Element.GUMBA.value or 
-            game_area[row][col+1] == Element.GUMBA.value):
-            print("Found enemy right, moving left")
-            return True
-        return False
-    
-    def check_block(self, row, col, game_area):
-        if (game_area[row][col + 1] == Element.BLOCK.value or 
-            game_area[row][col + 2] == Element.BLOCK.value or 
-            game_area[row][col + 3] == Element.BLOCK.value):
-            print("Found block")
-            return True
-        return False
-    
-    def check_pipe(self, row, col, game_area):
-        if (game_area[row][col + 1] == Element.PIPE.value or 
-            game_area[row][col + 2] == Element.PIPE.value or 
-            game_area[row][col + 3] == Element.PIPE.value):
-            print("Found pipe")
-            return True
-        return False
-    
-    def check_cancel_jump(self, row, col, game_area):
-        # if an enemy is above you, don't jump
-        if (game_area[row+1][col+1] == Element.GUMBA.value or
-            game_area[row+2][col+1] == Element.GUMBA.value):
-            print("cancelling jump")
-            return True
-        return False
-    
+     
     def check_jump(self, row, col, game_area):
-        # conditions to check for are power up above, enemy to the right, or a block to the right
-        if self.check_power_up(row, col, game_area):
+        # don't jump again if you're not on the ground
+        if self.check_dist_to_ground(row, col, game_area):
+            return False 
+        # jump over gumba
+        elif self.get_gumba_dist(row, col, game_area):
             return True
-        elif self.check_cancel_jump(row, col, game_area):
-            return False
-        elif self.check_enemy_jump(row, col, game_area):
+        # jump to collect power up
+        elif self.check_power_up(row, col, game_area):
             return True
-        elif self.check_block(row, col, game_area):
+        # jump onto a platform
+        elif self.check_platform_jump(row, col, game_area):
             return True
-        elif self.check_pipe(row, col, game_area):
+        # jump over obstacle
+        elif self.check_obstacle(row, col, game_area):
             return True
         else:
             return False
 
     def check_left(self, row, col, game_area):
-        if self.check_enemy_up(row, col, game_area) or self.check_enemy_right(row, col, game_area):
-            return True
-        if self.check_enemy_right(row, col, game_area): # if an enemy is too close, move left
-            return True
         return False
     
-    def check_right(self, row, col, game_area):
-        if self.check_block(row, col, game_area) or self.check_enemy_right(row, col, game_area):
-            return False
-        elif self.check_enemy_right(row, col, game_area): 
-            return False
-        return True
-    
     def choose_action(self):
-        global prev_action
+        global prev_action, next_action
         global row, col
 
         curr_action = 0
@@ -248,29 +266,39 @@ class MarioExpert:
 
         row,col = self.find_mario(game_area, row, col) # get game area
         enemy_row, enemy_col = self.find_gumba(game_area)
-
-        print(f"mario loc: {row},{col}")
+        
+        print(f"Mario loc: {row},{col}")
         print(f"Enemy loc: {enemy_row},{enemy_col}")
         
-        # check which action to perform, defaults to right
-        left = self.check_left(row, col, game_area)
-        jump = self.check_jump(row, col, game_area)
-        right = self.check_right(row, col, game_area)
-
-        if prev_action == Action.JUMP:
-            curr_action = Action.RIGHT
-
-        elif jump and self.check_enemy_up(row, col, game_area) == False:
-            curr_action = Action.JUMP
-
-        elif left:
-            curr_action = Action.LEFT
-
-        elif right:
-            curr_action = Action.RIGHT
-        
+        # jump over gumba
+        if self.get_gumba_dist(row, col, game_area):
+            print("gumba left")
+            if prev_action == Action.JUMP:
+                curr_action = Action.LEFT
+            # if gumba is above Mario 
+            #elif enemy_row < row and enemy_row != 0: 
+                #curr_action = Action.LEFT
+            else:
+                curr_action = Action.JUMP
+        # jump to collect power up
+        elif self.check_power_up(row, col, game_area):
+            if prev_action == Action.JUMP:
+                curr_action = Action.UP # stop so that mario can check for power ups
+            else:
+                curr_action = Action.JUMP
+        # jump over obstacle
+        elif self.check_obstacle(row, col, game_area):
+            if prev_action == Action.JUMP_OBS:
+                print("jump over obstacle")
+                curr_action = Action.JUMP_OBS
+            else:
+                curr_action = Action.JUMP
+        elif row == 0:
+            curr_action = Action.UP
+        # default to moving right
         else:
             curr_action = Action.RIGHT
+        
 
         prev_action = curr_action # record current action
 
