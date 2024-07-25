@@ -9,6 +9,7 @@ Original Mario Manual: https://www.thegameisafootarcade.com/wp-content/uploads/2
 import json
 import logging
 import random
+import math
 
 import cv2
 from mario_environment import MarioEnvironment
@@ -25,7 +26,8 @@ class Action(Enum):
 
 class Element(Enum):
     GUMBA = 15
-    BLOCK = 10
+    GROUND = 10
+    BLOCK = 12
     POWERUP = 13
     PIPE = 14
     PICKUP = 6
@@ -119,6 +121,9 @@ class MarioExpert:
 
         self.video = None
 
+    def get_distance(self, row0, col0, row1, col1):
+        return math.sqrt((col1-col0) * (col1-col0) * (row1-row0) * (row1-row0)) # pythagoras
+
     def find_mario(self, game_area, row, col):
         x, y = game_area.shape
         for a in range(x):
@@ -136,6 +141,22 @@ class MarioExpert:
                     return (a, b)
         return 0,0
 
+    def check_platform_jump(self, row, col, game_area):
+        x, y = game_area.shape  # x is the number of rows, y is the number of columns
+        for b in range(y):  # Iterate over columns
+            for a in range(x):  # Iterate over rows
+                # Check for blocks
+                if game_area[a, b] == Element.BLOCK.value:
+                    # Compute distance
+                    if a < row and b > col:  # If block is above and to the right of Mario
+                        distance = self.get_distance(row, col, a, b)
+                        print(f"distance to platform: {distance}")
+                        if distance <= 7.0:
+                            return True  # Found platform to jump on
+        return False
+
+    def check_
+            
     def check_power_up(self, row, col, game_area):
         for row in range(len(game_area)):
             if (game_area[row - 2][col] == Element.POWERUP.value):
@@ -183,11 +204,11 @@ class MarioExpert:
             return True
         return False
     
-    def check_block(self, row, col, game_area):
-        if (game_area[row][col + 1] == Element.BLOCK.value or 
-            game_area[row][col + 2] == Element.BLOCK.value or 
-            game_area[row][col + 3] == Element.BLOCK.value):
-            print("Found block")
+    def check_ground(self, row, col, game_area):
+        if (game_area[row][col + 1] == Element.GROUND.value or 
+            game_area[row][col + 2] == Element.GROUND.value or 
+            game_area[row][col + 3] == Element.GROUND.value):
+            print("Found GROUND")
             return True
         return False
     
@@ -199,23 +220,25 @@ class MarioExpert:
             return True
         return False
     
-    def check_cancel_jump(self, row, col, game_area):
+    def check_cancel_jump(self, row, col, game_area): 
         # if an enemy is above you, don't jump
         if (game_area[row+1][col+1] == Element.GUMBA.value or
             game_area[row+2][col+1] == Element.GUMBA.value):
             print("cancelling jump")
             return True
         return False
-    
+     
     def check_jump(self, row, col, game_area):
-        # conditions to check for are power up above, enemy to the right, or a block to the right
+        # conditions to check for are power up above, enemy to the right, or a GROUND to the right
         if self.check_power_up(row, col, game_area):
+            return True
+        elif self.check_platform_jump(row, col, game_area):
             return True
         elif self.check_cancel_jump(row, col, game_area):
             return False
         elif self.check_enemy_jump(row, col, game_area):
             return True
-        elif self.check_block(row, col, game_area):
+        elif self.check_ground(row, col, game_area):
             return True
         elif self.check_pipe(row, col, game_area):
             return True
@@ -230,7 +253,7 @@ class MarioExpert:
         return False
     
     def check_right(self, row, col, game_area):
-        if self.check_block(row, col, game_area) or self.check_enemy_right(row, col, game_area):
+        if self.check_ground(row, col, game_area) or self.check_enemy_right(row, col, game_area):
             return False
         elif self.check_enemy_right(row, col, game_area): 
             return False
@@ -260,11 +283,11 @@ class MarioExpert:
         if prev_action == Action.JUMP:
             curr_action = Action.RIGHT
 
-        elif jump and self.check_enemy_up(row, col, game_area) == False:
-            curr_action = Action.JUMP
-
         elif left:
             curr_action = Action.LEFT
+
+        elif jump and self.check_enemy_up(row, col, game_area) == False:
+            curr_action = Action.JUMP
 
         elif right:
             curr_action = Action.RIGHT
