@@ -22,7 +22,8 @@ class Action(Enum):
     RIGHT = 2
     UP = 3
     JUMP = 4
-    PRESS_B = 5
+    JUMP_OBS = 5
+    PRESS_B = 6
 
 class Element(Enum):
     GUMBA = 15
@@ -35,6 +36,7 @@ class Element(Enum):
 
 row, col = 0, 0
 prev_action = Action.RIGHT
+next_action = Action.RIGHT
 
 class MarioController(MarioEnvironment):
     """
@@ -93,11 +95,16 @@ class MarioController(MarioEnvironment):
         You can change the action type to whatever you want or need just remember the base control of the game is pushing buttons
         """
 
-        # Simply toggles the buttons being on or off for a duration of act_freq
-        self.pyboy.send_input(self.valid_actions[action])
-
-        for _ in range(self.act_freq):
-            self.pyboy.tick()
+        # extended hold duration when jumping over obstacles
+        if action == Action.JUMP_OBS:
+            self.pyboy.send_input(self.valid_actions[Action.JUMP])
+            for _ in range(self.act_freq*10):
+                self.pyboy.tick()
+        else:
+            # normal hold duration on all other inputs
+            self.pyboy.send_input(self.valid_actions[action])
+            for _ in range(self.act_freq):
+                self.pyboy.tick()
 
         self.pyboy.send_input(self.release_button[action])
 
@@ -135,7 +142,7 @@ class MarioExpert:
             for b in range(y):
                 if game_area[a][b] == 1:
                     return (a, b + 1)
-        return row, col  # Return None if 1 is not found
+        return 0, 0  # if mario is not found
     
     def find_gumba(self, game_area):
         x,y = game_area.shape
@@ -155,7 +162,7 @@ class MarioExpert:
                     if b >= col:  # If gumba is to the right of Mario
                         distance = self.get_distance(row, col, a, b)
                         print(f"Distance to gumba: {distance}")
-                        if distance <= 4.0:
+                        if distance <= 4.5:
                             return True
         return False
 
@@ -193,7 +200,7 @@ class MarioExpert:
                                 print(f"Distance to Hill: {distance}")
                                 if distance <= 1.0:
                                     return True
-                        else:
+                        elif game_area[a,b] == Element.PIPE.value:
                             print(f"distance to pipe: {distance}")
 
                         if distance <= 2.0:
@@ -209,7 +216,7 @@ class MarioExpert:
                     if row >= a and b >= col:  # If power up is to the right and above Mario
                         distance = self.get_distance(row, col, a, b)
                         print(f"Distance to power up: {distance}")
-                        if distance <= 3.0:
+                        if distance <= 3.0 and game_area[row+2,col] == Element.GROUND.value:
                             return True
                         return False # missed power up
                     
@@ -248,7 +255,7 @@ class MarioExpert:
         return False
     
     def choose_action(self):
-        global prev_action
+        global prev_action, next_action
         global row, col
 
         curr_action = 0
@@ -265,28 +272,29 @@ class MarioExpert:
         
         # jump over gumba
         if self.get_gumba_dist(row, col, game_area):
+            print("gumba left")
             if prev_action == Action.JUMP:
                 curr_action = Action.LEFT
             # if gumba is above Mario 
-            elif enemy_row < row: 
-                curr_action = Action.LEFT
+            #elif enemy_row < row and enemy_row != 0: 
+                #curr_action = Action.LEFT
             else:
                 curr_action = Action.JUMP
         # jump to collect power up
         elif self.check_power_up(row, col, game_area):
             if prev_action == Action.JUMP:
-                curr_action = Action.UP
+                curr_action = Action.UP # stop so that mario can check for power ups
             else:
                 curr_action = Action.JUMP
-        # jump onto a platform
-        #elif self.check_platform_jump(row, col, game_area):
-            #curr_action = Action.JUMP
         # jump over obstacle
         elif self.check_obstacle(row, col, game_area):
-            if prev_action == Action.JUMP:
-                curr_action = Action.LEFT
+            if prev_action == Action.JUMP_OBS:
+                print("jump over obstacle")
+                curr_action = Action.JUMP_OBS
             else:
                 curr_action = Action.JUMP
+        elif row == 0:
+            curr_action = Action.UP
         # default to moving right
         else:
             curr_action = Action.RIGHT
