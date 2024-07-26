@@ -34,6 +34,7 @@ class Element(Enum):
     PICKUP = 6
     MARIO = 1
     EMPTY = 0
+    TOAD = 16
 
 row, col = 0, 0
 prev_action = Action.RIGHT
@@ -133,6 +134,7 @@ class MarioExpert:
     Checks surroundings of Mario, to see if he's in the air. Returns true if all surrounding values are the same
     """
     def check_surrounding(self, row, col, game_area, value):
+        print(f"checking surrounding for {value}")
         return (game_area[row - 1][col - 2] == value and
                 game_area[row - 1][col - 1] == value and
                 game_area[row - 1][col] == value and
@@ -177,6 +179,20 @@ class MarioExpert:
                     if b >= col:  # If gumba is to the right of Mario
                         distance = self.get_distance(row, col, a, b)
                         print(f"Distance to gumba: {distance}")
+                        if distance <= 4.5:
+                            return True
+        return False
+    
+    def get_toad_dist(self, row, col, game_area):
+        x, y = game_area.shape  # x is the number of rows, y is the number of columns
+        for b in range(y):  # Iterate over columns
+            for a in range(x):  # Iterate over rows
+                # Check for blocks
+                if game_area[a, b] == Element.TOAD.value:
+                    # Compute distance
+                    if b >= col:  # If gumba is to the right of Mario
+                        distance = self.get_distance(row, col, a, b)
+                        print(f"Distance to toad: {distance}")
                         if distance <= 4.5:
                             return True
         return False
@@ -289,6 +305,16 @@ class MarioExpert:
                 #curr_action = Action.LEFT
             else:
                 curr_action = Action.JUMP
+
+        elif self.get_toad_dist(row, col, game_area):
+            print("toad left")
+            if prev_action == Action.JUMP:
+                curr_action = Action.LEFT
+            # if gumba is above Mario 
+            #elif enemy_row < row and enemy_row != 0: 
+                #curr_action = Action.LEFT
+            else:
+                curr_action = Action.JUMP
         # jump to collect power up
         elif self.check_power_up(row, col, game_area):
             if prev_action == Action.JUMP:
@@ -302,8 +328,6 @@ class MarioExpert:
                 curr_action = Action.JUMP_OBS
             else:
                 curr_action = Action.JUMP
-        elif row == 0:
-            curr_action = Action.UP  # when mario is off screen/ dead, move up
         
         # elif self.check_platform_jump(row, col, game_area):
         #     if prev_action == Action.JUMP_OBS:
@@ -317,7 +341,13 @@ class MarioExpert:
                 curr_action = Action.JUMP_OBS
             else:
                 curr_action = Action.JUMP
-        
+
+        # if walked off a ledge without jumping
+        #elif self.check_surrounding(row, col, game_area, Element.EMPTY.value) and prev_action == Action.RIGHT:
+        #    curr_action = Action.LEFT
+
+        elif row == 0:
+            curr_action = Action.UP  # when mario is off screen/ dead, move up
         else:
             curr_action = Action.RIGHT
         
@@ -332,7 +362,7 @@ class MarioExpert:
         """
         Runs each step of the game
         """
-        input("Press enter to continue") # for testing
+        # input("Press enter to continue") # for testing
         # Choose an action - button press or other...
         action = self.choose_action()
         # Run the action on the environment
