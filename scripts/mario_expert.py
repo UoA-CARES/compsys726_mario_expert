@@ -35,6 +35,7 @@ class Element(Enum):
     MARIO = 1
     EMPTY = 0
     TOAD = 16
+    FLY = 18
 
 row, col = 0, 0
 prev_action = Action.RIGHT
@@ -196,6 +197,20 @@ class MarioExpert:
                         if distance <= 4.5:
                             return True
         return False
+    
+    def get_fly_dist(self, row, col, game_area):
+        x, y = game_area.shape  # x is the number of rows, y is the number of columns
+        for b in range(y):  # Iterate over columns
+            for a in range(x):  # Iterate over rows
+                # Check for blocks
+                if game_area[a, b] == Element.FLY.value:
+                    # Compute distance
+                    if b >= col:  # If gumba is to the right of Mario
+                        distance = self.get_distance(row, col, a, b)
+                        print(f"Distance to fly: {distance}")
+                        if distance <= 2:
+                            return True
+        return False
 
     def check_platform_jump(self, row, col, game_area):
         x, y = game_area.shape  # x is the number of rows, y is the number of columns
@@ -297,8 +312,8 @@ class MarioExpert:
         
         # jump over gumba
         if self.get_gumba_dist(row, col, game_area):
-            print("gumba left")
             if prev_action == Action.JUMP:
+                print("gumba left")
                 curr_action = Action.LEFT
             # if gumba is above Mario 
             #elif enemy_row < row and enemy_row != 0: 
@@ -315,6 +330,17 @@ class MarioExpert:
                 #curr_action = Action.LEFT
             else:
                 curr_action = Action.JUMP
+
+        elif self.get_fly_dist(row, col, game_area):
+            if prev_action == Action.JUMP:
+                print("fly left")
+                curr_action = Action.LEFT
+            # if gumba is above Mario 
+            #elif enemy_row < row and enemy_row != 0: 
+                #curr_action = Action.LEFT
+            else:
+                curr_action = Action.JUMP
+
         # jump to collect power up
         elif self.check_power_up(row, col, game_area):
             if prev_action == Action.JUMP:
