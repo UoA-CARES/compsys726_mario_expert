@@ -133,14 +133,18 @@ class MarioExpert:
     Checks surroundings of Mario, to see if he's in the air. Returns true if all surrounding values are the same
     """
     def check_surrounding(self, row, col, game_area, value):
-        return (game_area[row - 1][col - 1] == value and
+        return (game_area[row - 1][col - 2] == value and
+                game_area[row - 1][col - 1] == value and
                 game_area[row - 1][col] == value and
                 game_area[row - 1][col + 1] == value and
-                game_area[row][col - 1] == value and
+                game_area[row][col - 2] == value and
                 game_area[row][col + 1] == value and
-                game_area[row + 1][col - 1] == value and
-                game_area[row + 1][col] == value and
-                game_area[row + 1][col + 1] == value)
+                game_area[row + 1][col - 2] == value and
+                game_area[row + 1][col + 1] == value and
+                game_area[row + 2][col - 2] == value and
+                game_area[row + 2][col - 1 == value] and
+                game_area[row + 2][col] == value and
+                game_area[row + 2][col + 1] == value)
 
     """
     Gets mario's position, returns the top right corner of Mario
@@ -222,14 +226,15 @@ class MarioExpert:
         x, y = game_area.shape  # x is the number of rows, y is the number of columns
         for b in range(y):  # Iterate over columns
             for a in range(x):  # Iterate over rows
-                # Check for ground
-                if (game_area[a, b] == Element.EMPTY.value):
-                    if b >= col and a > row and (game_area[a, b-1] == Element.GROUND.value):  # If ground is to the right and below of Mario and block next to it is ground
-                        print(f"Empty loc: {a},{b}")
-                        distance = self.get_distance(row, col, a, b)
-                        print(f"Distance to empty: {distance}")
-                        if distance <= 2.0:
-                            return True  # jump over empty
+                # Check for empty to the right below mario
+                if (game_area[a, b] == Element.EMPTY.value and (a == row+2) and (b > col)):  
+                        if game_area[a][b-1] == Element.GROUND.value:
+                            # If ground is to the right and below of Mario and block next to it is ground
+                            print(f"Empty loc: {a},{b}")
+                            distance = self.get_distance(row, col, a, b)
+                            print(f"Distance to empty: {distance}")
+                            if distance <= 2.5:
+                                return True  # jump over empty
         return False
 
     def check_power_up(self, row, col, game_area):
@@ -298,10 +303,21 @@ class MarioExpert:
             else:
                 curr_action = Action.JUMP
         elif row == 0:
-            curr_action = Action.UP
+            curr_action = Action.UP  # when mario is off screen/ dead, move up
+        
+        # elif self.check_platform_jump(row, col, game_area):
+        #     if prev_action == Action.JUMP_OBS:
+        #         print("jump onto platform")
+        #         curr_action = Action.JUMP_OBS
+        #     else:
+        #         curr_action = Action.JUMP
         elif self.check_empty_jump(row, col, game_area):
-            curr_action = Action.JUMP
-        # default to moving right
+            if prev_action == Action.JUMP_OBS:
+                print("jump over empty")
+                curr_action = Action.JUMP_OBS
+            else:
+                curr_action = Action.JUMP
+        
         else:
             curr_action = Action.RIGHT
         
@@ -314,9 +330,7 @@ class MarioExpert:
     
     def step(self):
         """
-        Modify this function as required to implement the Mario Expert agent's logic.
-
-        This is just a very basic example
+        Runs each step of the game
         """
         input("Press enter to continue") # for testing
         # Choose an action - button press or other...
