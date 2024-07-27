@@ -206,7 +206,7 @@ class MarioExpert:
                     if b >= col:  # If gumba is to the right of Mario
                         distance = self.get_distance(row, col, a, b)
                         print(f"Distance to toad: {distance}")
-                        if distance <= 4.5:
+                        if distance <= 4:
                             return True
         return False
     
@@ -220,7 +220,7 @@ class MarioExpert:
                     if b >= col:  # If gumba is to the right of Mario
                         distance = self.get_distance(row, col, a, b)
                         print(f"Distance to fly: {distance}")
-                        if distance <= 2:
+                        if distance <= 3:
                             return True
         return False
 
@@ -409,7 +409,7 @@ class MarioExpert:
         """
         Runs each step of the game
         """
-        input("Press enter to continue") # for testing
+        # input("Press enter to continue") # for testing
         # Choose an action - button press or other...
         action = self.choose_action()
         # Run the action on the environment
