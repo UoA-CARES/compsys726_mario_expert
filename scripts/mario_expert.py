@@ -22,8 +22,9 @@ class Action(Enum):
     RIGHT = 2
     UP = 3
     JUMP = 4
-    JUMP_OBS = 5
-    PRESS_B = 6
+    PRESS_B = 5
+    JUMP_OBS = 6
+    JUMP_POWER_UP = 7
 
 class Element(Enum):
     GUMBA = 15
@@ -96,10 +97,21 @@ class MarioController(MarioEnvironment):
         """
 
         # extended hold duration when jumping over obstacles
-        if action == Action.JUMP_OBS:
-            self.pyboy.send_input(self.valid_actions[Action.JUMP])
+        if action == Action.JUMP_OBS.value:
+            self.pyboy.send_input(self.valid_actions[Action.JUMP.value])
             for _ in range(self.act_freq*10):
                 self.pyboy.tick()
+
+            action = Action.JUMP.value
+            #self.pyboy.send_input(self.release_button[action])
+
+        elif action == Action.JUMP_POWER_UP.value:
+            self.pyboy.send_input(self.valid_actions[Action.JUMP.value])
+            for _ in range(self.act_freq):
+                self.pyboy.tick()
+            
+            action = Action.JUMP.value
+            #self.pyboy.send_input(self.release_button[action])
         else:
             # normal hold duration on all other inputs
             self.pyboy.send_input(self.valid_actions[action])
@@ -259,7 +271,13 @@ class MarioExpert:
             for a in range(x):  # Iterate over rows
                 # Check for empty to the right below mario
                 if (game_area[a, b] == Element.EMPTY.value and (a == row+2) and (b > col)):  
-                        if game_area[a][b-1] == Element.GROUND.value:
+                        # check if ground is wide enough
+                        if ((game_area[a][b-1] == Element.GROUND.value and
+                            game_area[a][b-2] == Element.GROUND.value and
+                            game_area[a][b-3] == Element.GROUND.value) or 
+                            (game_area[a][b-1] == Element.BLOCK.value and
+                            game_area[a][b-2] == Element.BLOCK.value and
+                            game_area[a][b-3] == Element.BLOCK.value)):
                             # If ground is to the right and below of Mario and block next to it is ground
                             print(f"Empty loc: {a},{b}")
                             distance = self.get_distance(row, col, a, b)
@@ -315,9 +333,9 @@ class MarioExpert:
             if prev_action == Action.JUMP:
                 print("gumba left")
                 curr_action = Action.LEFT
-            # if gumba is above Mario 
-            #elif enemy_row < row and enemy_row != 0: 
-                #curr_action = Action.LEFT
+            # # if gumba is above Mario 
+            # elif enemy_row < row and enemy_row != 0: 
+            #     curr_action = Action.LEFT
             else:
                 curr_action = Action.JUMP
 
@@ -343,17 +361,20 @@ class MarioExpert:
 
         # jump to collect power up
         elif self.check_power_up(row, col, game_area):
-            if prev_action == Action.JUMP:
+            if(prev_action == Action.JUMP_POWER_UP):
+                print("Power up right")
+                curr_action = Action.RIGHT
+            elif prev_action == Action.JUMP:
                 curr_action = Action.UP # stop so that mario can check for power ups
             else:
-                curr_action = Action.JUMP
+                curr_action = Action.JUMP_POWER_UP
         # jump over obstacle
         elif self.check_obstacle(row, col, game_area):
             if prev_action == Action.JUMP_OBS:
                 print("jump over obstacle")
-                curr_action = Action.JUMP_OBS
+                curr_action = Action.RIGHT
             else:
-                curr_action = Action.JUMP
+                curr_action = Action.JUMP_OBS
         
         # elif self.check_platform_jump(row, col, game_area):
         #     if prev_action == Action.JUMP_OBS:
@@ -388,7 +409,7 @@ class MarioExpert:
         """
         Runs each step of the game
         """
-        # input("Press enter to continue") # for testing
+        input("Press enter to continue") # for testing
         # Choose an action - button press or other...
         action = self.choose_action()
         # Run the action on the environment
