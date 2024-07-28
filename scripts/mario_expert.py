@@ -315,7 +315,8 @@ class MarioExpert:
                             game_area[a][b-3] == Element.GROUND.value) or 
                             (game_area[a][b-1] == Element.BLOCK.value and
                             game_area[a][b-2] == Element.BLOCK.value and
-                            game_area[a][b-3] == Element.BLOCK.value)):
+                            game_area[a][b-3] == Element.BLOCK.value) and
+                            (game_area[a-1][b-1]) in [0, 1]):
                             # If ground is to the right and below of Mario and block next to it is ground
                             print(f"Empty loc: {a},{b}")
                             distance = self.get_distance(row, col, a, b)
@@ -365,6 +366,8 @@ class MarioExpert:
         print(f"prev_action: {prev_action}")
         print(f"Mario loc: {row},{col}")
         print(f"Enemy loc: {enemy_row},{enemy_col}")
+        distance = self.get_gumba_dist(row, col, game_area)
+        print(f"enemy distance: {distance}")
         
         if self.check_empty_jump(row, col, game_area):
             if prev_action == Action.JUMP_EMPTY:
@@ -381,10 +384,11 @@ class MarioExpert:
                     print("jump off pipe")
                     curr_action = Action.JUMP_EMPTY
 
-        elif (enemy_row > row + 2 and 
+        elif (row + 2 < enemy_row and
                   enemy_row != 0 and 
                   prev_action == Action.RIGHT and
-                  (game_area[row+2][col] != Element.EMPTY.value)): 
+                  (game_area[row+2][col] != Element.EMPTY.value and
+                   distance < 7)): 
                 print("jump skip over enemy")
                 curr_action = Action.JUMP_EMPTY
 
