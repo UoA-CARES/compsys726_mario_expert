@@ -26,7 +26,9 @@ class Action(Enum):
     JUMP_OBS = 6
     JUMP_EMPTY = 7
     JUMP_POWER_UP = 8
-    ENEMY_LEFT = 9
+    JUMP_SKIP_ENEMY = 9
+    JUMP_RIGHT = 10
+    ENEMY_LEFT = 11
 
 class Element(Enum):
     GUMBA = 15
@@ -131,6 +133,24 @@ class MarioController(MarioEnvironment):
             
             print("releasing enemy left ")
             action = Action.LEFT.value
+            
+        elif action == Action.JUMP_SKIP_ENEMY.value:
+            self.pyboy.send_input(self.valid_actions[Action.JUMP.value])
+            self.pyboy.send_input(self.valid_actions[Action.RIGHT.value])
+            for _ in range(self.act_freq * 2):
+                self.pyboy.tick()
+            self.pyboy.send_input(self.release_button[Action.RIGHT.value])
+            action = Action.JUMP.value
+        
+        elif action == Action.JUMP_RIGHT.value:
+            # normal jump right with normal button press timings
+            self.pyboy.send_input(self.valid_actions[Action.JUMP.value])
+            self.pyboy.send_input(self.valid_actions[Action.RIGHT.value])
+            for _ in range(self.act_freq):
+                self.pyboy.tick()
+            self.pyboy.send_input(self.release_button[Action.RIGHT.value])
+            action = Action.JUMP.value
+
         else:
             # normal hold duration on all other inputs
             self.pyboy.send_input(self.valid_actions[action])
@@ -210,10 +230,8 @@ class MarioExpert:
                     # Compute distance
                     if b >= col:  # If gumba is to the right of Mario
                         distance = self.get_distance(row, col, a, b)
-                        print(f"Distance to gumba: {distance}")
-                        if distance <= 4.5 and distance >= 3.0:
-                            return True
-        return False
+                        return distance
+        return 10000
     
     def get_toad_dist(self, row, col, game_area):
         x, y = game_area.shape  # x is the number of rows, y is the number of columns
@@ -290,7 +308,7 @@ class MarioExpert:
         for b in range(y):  # Iterate over columns
             for a in range(x):  # Iterate over rows
                 # Check for empty to the right below mario
-                if (game_area[a][b] == Element.EMPTY.value and (a == row+2) and (b > col)):  
+                if (game_area[a][b] == Element.EMPTY.value and (a == row+2) and (col < b)):  
                         # check if ground is wide enough
                         if ((game_area[a][b-1] == Element.GROUND.value and
                             game_area[a][b-2] == Element.GROUND.value and
@@ -363,17 +381,38 @@ class MarioExpert:
                     print("jump off pipe")
                     curr_action = Action.JUMP_EMPTY
 
-        elif self.get_gumba_dist(row, col, game_area):
-            if prev_action == Action.JUMP:
-                print("gumba left")
-                curr_action = Action.ENEMY_LEFT
-            # if gumba is above Mario 
-            elif (enemy_row > row + 2 and 
+        elif (enemy_row > row + 2 and 
                   enemy_row != 0 and 
                   prev_action == Action.RIGHT and
                   (game_area[row+2][col] != Element.EMPTY.value)): 
                 print("jump skip over enemy")
                 curr_action = Action.JUMP_EMPTY
+
+        elif self.get_gumba_dist(row, col, game_area) <= 4.5:
+            distance = self.get_gumba_dist(row, col, game_area) 
+            print(f"gumba dist < 4.5: {distance}")
+            # normal case
+            if prev_action == Action.RIGHT:
+                curr_action = Action.JUMP # jump over gumba
+            # edge cases
+            # mario too close to gumba, just skip gumba
+            elif prev_action == Action.ENEMY_LEFT and distance < 2 and distance > 1.5:
+                curr_action = Action.JUMP_SKIP_ENEMY
+            # if prev action was jump, can't jump again
+            elif prev_action == Action.ENEMY_LEFT and distance >= 1.5:
+                # can jump over enemy now, needs to jump to the right
+                # print("jump right")
+                curr_action = Action.JUMP
+
+            # mario just jumped or in air
+            elif prev_action == Action.JUMP:
+                if distance < 4:
+                    # safe to move left
+                    print("gumba left")
+                    curr_action = Action.ENEMY_LEFT
+                else:
+                    curr_action = Action.JUMP_RIGHT
+            
             else:
                 curr_action = Action.JUMP
 
@@ -407,13 +446,7 @@ class MarioExpert:
             else:
                 curr_action = Action.JUMP_POWER_UP
 
-        # jump over obstacle
-        elif self.check_obstacle(row, col, game_area):
-            if prev_action == Action.JUMP_OBS:
-                print("jump over obstacle")
-                curr_action = Action.RIGHT
-            else:
-                curr_action = Action.JUMP_OBS
+        
         
         # elif self.check_platform_jump(row, col, game_area):
         #     if prev_action == Action.JUMP_OBS:
