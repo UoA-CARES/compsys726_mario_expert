@@ -308,7 +308,7 @@ class MarioExpert:
         for b in range(y):  # Iterate over columns
             for a in range(x):  # Iterate over rows
                 # Check for empty to the right below mario
-                if (game_area[a][b] == Element.EMPTY.value and (a == row+2) and (col < b)):  
+                if (game_area[a][b] == Element.EMPTY.value and (a == row+2) and (b > col)):  
                         # check if ground is wide enough
                         if ((game_area[a][b-1] == Element.GROUND.value and
                             game_area[a][b-2] == Element.GROUND.value and
@@ -446,7 +446,13 @@ class MarioExpert:
             else:
                 curr_action = Action.JUMP_POWER_UP
 
-        
+         # jump over obstacle
+        elif self.check_obstacle(row, col, game_area):
+            if prev_action == Action.JUMP_OBS:
+                print("jump over obstacle")
+                curr_action = Action.RIGHT
+            else:
+                curr_action = Action.JUMP_OBS
         
         # elif self.check_platform_jump(row, col, game_area):
         #     if prev_action == Action.JUMP_OBS:
